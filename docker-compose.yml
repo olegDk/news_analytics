@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
+  benzinga_newsfeed_websockets:
+    build:
+      context: ./benzinga_newsfeed_websockets
+    env_file: .env
+    volumes:
+      - ./benzinga_newsfeed_websockets:/app
+  analytics:
+    build:
+      context: ./analytics
+    env_file: .env
+    volumes:
+      - ./analytics:/app
