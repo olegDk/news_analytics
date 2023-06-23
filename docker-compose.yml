@@ -1,5 +1,14 @@
 version: "3.8"
 services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
   nats:
     image: nats:latest
     ports:
@@ -8,11 +17,17 @@ services:
     build:
       context: ./benzinga_newsfeed_websockets
     env_file: .env
+    depends_on:
+      - nats
     volumes:
       - ./benzinga_newsfeed_websockets:/app
   analytics:
     build:
       context: ./analytics
     env_file: .env
+    depends_on:
+      - nats
     volumes:
       - ./analytics:/app
+volumes:
+  postgres_data:

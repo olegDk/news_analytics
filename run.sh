@@ -1,3 +1,6 @@
+#!/bin/bash
+
+source remove.sh
 cd benzinga_newsfeed_websockets
 protoc --python_out=. news.proto
 cd ..

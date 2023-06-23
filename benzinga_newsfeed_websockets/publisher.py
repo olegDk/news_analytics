@@ -21,6 +21,7 @@ async def run(loop):
     nc = NATS()
 
     await nc.connect("nats:4222", loop=loop)
+    # await nc.connect("localhost:4222", loop=loop)
 
     async with websockets.connect(
         "wss://api.benzinga.com/api/v1/news/stream?token={key}".format(key=BZ_API_KEY),
@@ -33,25 +34,31 @@ async def run(loop):
             payload = json.loads(message)
 
             if "content" in payload["data"]:
-                securities = [
-                    Security(
-                        symbol=s["symbol"], exchange=s["exchange"], primary=s["primary"]
+                print("content here")
+                if "securities" in payload["data"]["content"]:
+                    print("securities here")
+                    securities = [
+                        Security(
+                            symbol=s["symbol"],
+                            exchange=s["exchange"],
+                            primary=s["primary"],
+                        )
+                        for s in payload["data"]["content"]["securities"]
+                    ]
+                    content = Content(
+                        id=payload["data"]["content"]["id"],
+                        title=BeautifulSoup(
+                            payload["data"]["content"]["title"], "html.parser"
+                        ).text,
+                        body=BeautifulSoup(
+                            payload["data"]["content"]["body"], "html.parser"
+                        ).text,
+                        securities=securities,
                     )
-                    for s in payload["data"]["content"]["securities"]
-                ]
-                content = Content(
-                    id=payload["data"]["content"]["id"],
-                    title=BeautifulSoup(
-                        payload["data"]["content"]["title"], "html.parser"
-                    ).text,
-                    body=BeautifulSoup(
-                        payload["data"]["content"]["body"], "html.parser"
-                    ).text,
-                    securities=securities,
-                )
+                else:
+                    continue
             else:
-                # No content in this message, skip or use a default Content message.
-                continue  # or replace with some default Content creation code.
+                continue
 
             news = News(
                 kind=payload["kind"],
