@@ -1,30 +1,21 @@
-import os
+# main.py
+
 import asyncio
-import asyncpg
 from nats.aio.client import Client as NATS
 from news_pb2 import News  # news_pb2 is the generated module from news.proto
-from dotenv import load_dotenv
-
-load_dotenv()
-
-POSTGRES_USER = os.environ.get("POSTGRES_USER", default="")
-POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", default="")
-POSTGRES_DB = os.environ.get("POSTGRES_DB", default="")
+from postgres_client import PostgresClient
 
 
 async def run(loop):
     nc = NATS()
 
     # Connect to the NATS server
-    await nc.connect("nats:4222", loop=loop)
+    await nc.connect("localhost:4222", loop=loop)
+    # await nc.connect("nats:4222", loop=loop)
 
-    # Create a connection pool to your database
-    db_pool = await asyncpg.create_pool(
-        user=POSTGRES_USER,
-        password=POSTGRES_PASSWORD,
-        database=POSTGRES_DB,
-        host="postgres",
-    )
+    # # Create a connection to your database
+    # db_client = PostgresClient()
+    # await db_client.connect()
 
     async def message_handler(msg):
         subject = msg.subject
@@ -32,59 +23,8 @@ async def run(loop):
         data.ParseFromString(msg.data)
         print(f"Received a message on '{subject}':\n{data}")
 
-        # Insert the data into your database
-        async with db_pool.acquire() as conn:
-            # Begin a transaction
-            async with conn.transaction():
-                # Insert news data
-                result = await conn.execute(
-                    """
-                    INSERT INTO news (kind, action, content, timestamp)
-                    VALUES ($1, $2, $3, $4)
-                    RETURNING id;
-                    """,
-                    data.kind,
-                    data.action,
-                    f"{data.content.title} - {data.content.body}",
-                    data.timestamp,
-                )
-
-                # Get the id of the news we just inserted
-                news_id = result.split()[-1]
-
-                # Insert securities data
-                for s in data.content.securities:
-                    try:
-                        result = await conn.execute(
-                            """
-                            INSERT INTO securities (symbol, exchange)
-                            VALUES ($1, $2)
-                            ON CONFLICT (symbol) DO NOTHING
-                            RETURNING id;
-                            """,
-                            s.symbol,
-                            s.exchange,
-                        )
-                    except Exception as e:
-                        print(e)
-                        continue
-
-                    # Get the id of the security we just inserted
-                    security_id = result.split()[-1]
-
-                    # Link the news and security in the join table
-                    try:
-                        await conn.execute(
-                            """
-                            INSERT INTO news_securities (news_id, security_id)
-                            VALUES ($1, $2);
-                            """,
-                            news_id,
-                            security_id,
-                        )
-                    except Exception as e:
-                        print(e)
-                        continue
+        # # Insert the data into your database
+        # await db_client.insert_news(data)
 
     sid = await nc.subscribe("news", cb=message_handler)
 
@@ -95,6 +35,7 @@ async def run(loop):
     finally:
         await nc.unsubscribe(sid)
         await nc.close()
+        await db_client.close()
 
 
 if __name__ == "__main__":

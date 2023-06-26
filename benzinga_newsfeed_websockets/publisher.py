@@ -20,8 +20,9 @@ BZ_API_KEY = os.environ.get("BZ_API_KEY", default="")
 async def run(loop):
     nc = NATS()
 
-    await nc.connect("nats:4222", loop=loop)
-    # await nc.connect("localhost:4222", loop=loop)
+    # Connect to the NATS server
+    await nc.connect("localhost:4222", loop=loop)
+    # await nc.connect("nats:4222", loop=loop)
 
     async with websockets.connect(
         "wss://api.benzinga.com/api/v1/news/stream?token={key}".format(key=BZ_API_KEY),
