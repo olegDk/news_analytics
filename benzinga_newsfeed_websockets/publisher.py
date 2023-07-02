@@ -21,8 +21,8 @@ async def run(loop):
     nc = NATS()
 
     # Connect to the NATS server
-    await nc.connect("localhost:4222", loop=loop)
-    # await nc.connect("nats:4222", loop=loop)
+    # await nc.connect("localhost:4222", loop=loop)
+    await nc.connect("nats:4222", loop=loop)
 
     async with websockets.connect(
         "wss://api.benzinga.com/api/v1/news/stream?token={key}".format(key=BZ_API_KEY),
@@ -35,9 +35,7 @@ async def run(loop):
             payload = json.loads(message)
 
             if "content" in payload["data"]:
-                print("content here")
                 if "securities" in payload["data"]["content"]:
-                    print("securities here")
                     securities = [
                         Security(
                             symbol=s["symbol"],

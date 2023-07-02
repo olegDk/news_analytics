@@ -1,5 +1,3 @@
-# postgres_client.py
-
 import os
 import asyncpg
 import time
@@ -41,6 +39,7 @@ class PostgresClient:
                     raise
 
     async def insert_news(self, data):
+        news_id = None
         async with self.db_pool.acquire() as conn:
             # Begin a transaction
             async with conn.transaction():
@@ -50,40 +49,47 @@ class PostgresClient:
                 )
                 timestamp = timestamp.astimezone(timezone.utc).replace(tzinfo=None)
 
-                result = await conn.execute(
-                    """
-                    INSERT INTO news (kind, action, content, timestamp)
-                    VALUES ($1, $2, $3, $4)
-                    RETURNING id;
-                    """,
-                    data.kind,
-                    data.action,
-                    f"{data.content.title} - {data.content.body}",
-                    timestamp,
-                )
-
-                # Get the id of the news we just inserted
-                news_id = int(result.split()[-1])
+                try:
+                    news_id = await conn.fetchval(
+                        """
+                        INSERT INTO news (kind, action, content, timestamp)
+                        VALUES ($1, $2, $3, $4)
+                        RETURNING id;
+                        """,
+                        data.kind,
+                        data.action,
+                        f"{data.content.title} - {data.content.body}",
+                        timestamp,
+                    )
+                except Exception as e:
+                    print("Failed to insert into news: ", e)
+                    raise  # Propagate the exception up
 
                 # Insert securities data
                 for s in data.content.securities:
-                    try:
-                        result = await conn.execute(
-                            """
-                            INSERT INTO securities (symbol, exchange)
-                            VALUES ($1, $2)
-                            ON CONFLICT (symbol) DO NOTHING
-                            RETURNING id;
-                            """,
-                            s.symbol,
-                            s.exchange,
-                        )
-                    except Exception as e:
-                        print(e)
-                        continue
+                    # Try to get the id of the security if it already exists
+                    security_id = await conn.fetchval(
+                        """
+                        SELECT id FROM securities WHERE symbol = $1
+                        """,
+                        s.symbol,
+                    )
 
-                    # Get the id of the security we just inserted
-                    security_id = int(result.split()[-1])
+                    # If security_id is None, it means the security doesn't exist yet
+                    if security_id is None:
+                        try:
+                            security_id = await conn.fetchval(
+                                """
+                                INSERT INTO securities (symbol, exchange)
+                                VALUES ($1, $2)
+                                RETURNING id;
+                                """,
+                                s.symbol,
+                                s.exchange,
+                            )
+                        except Exception as e:
+                            print("Failed to insert into securities: ", e)
+                            raise  # Propagate the exception up
 
                     # Link the news and security in the join table
                     try:
@@ -97,8 +103,10 @@ class PostgresClient:
                             security_id,
                         )
                     except Exception as e:
-                        print(e)
-                        continue
+                        print("Failed to insert into news_securities: ", e)
+                        raise  # Propagate the exception up
+
+        return news_id
 
     async def close(self):
         await self.db_pool.close()
