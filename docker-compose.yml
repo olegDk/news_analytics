@@ -20,6 +20,15 @@ services:
       context: ./news_simulator
     volumes:
       - ./news_simulator:/app
+  db_writer:
+    build:
+      context: ./db_writer
+    env_file: .env
+    depends_on:
+      - nats
+      - postgres
+    volumes:
+      - ./db_writer:/app
   benzinga_newsfeed_websockets:
     build:
       context: ./benzinga_newsfeed_websockets
@@ -30,14 +39,5 @@ services:
       - news_simulator
     volumes:
       - ./benzinga_newsfeed_websockets:/app
-  db_writer:
-    build:
-      context: ./db_writer
-    env_file: .env
-    depends_on:
-      - nats
-      - postgres
-    volumes:
-      - ./db_writer:/app
 volumes:
   postgres_data:

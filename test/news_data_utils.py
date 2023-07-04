@@ -1,10 +1,6 @@
 import json
 from datetime import datetime
 import copy
-import asyncio
-from db_writer.db_clients.vector_datastore_client.pinecone_datastore import (
-    PineconeDataStore,
-)
 
 # Load the data from the JSON file
 with open("test/news_data.json", "r") as f:
@@ -34,20 +30,23 @@ def reset_index(data: dict) -> dict:
     return news_data
 
 
+def refactor_json(data: dict):
+    # Refactor the data
+    news_data = []
+    for item in data:
+        news_item = copy.deepcopy(item)
+
+        # Extract the 'kind' key and remove it from the original dict
+        kind = news_item.pop("kind")
+
+        # Wrap the rest of the dict in a 'data' key
+        news_data.append({"kind": kind, "data": news_item})
+
+    return news_data
+
+
 # data = reset_index(data)
+# data = refactor_json(data=data)
 
-# # Save the data back to the JSON file
-# with open("test/news_data_updated_ids.json", "w") as f:
+# with open("test/news_data.json", "w") as f:
 #     json.dump(data, f, indent=4)
-
-pinecone_client = PineconeDataStore()
-
-
-async def insert_news(news: dict):
-    await pinecone_client.insert_news(
-        news_id="93",
-        document=f'{news["content"]["title"]}-{news["content"]["body"]}',
-    )
-
-
-asyncio.run(insert_news(data[300]))
