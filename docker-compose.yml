@@ -15,6 +15,11 @@ services:
     image: nats:latest
     ports:
       - "4222:4222"
+  news_simulator:
+    build:
+      context: ./news_simulator
+    volumes:
+      - ./news_simulator:/app
   benzinga_newsfeed_websockets:
     build:
       context: ./benzinga_newsfeed_websockets
@@ -22,6 +27,7 @@ services:
     depends_on:
       - nats
       - postgres
+      - news_simulator
     volumes:
       - ./benzinga_newsfeed_websockets:/app
   db_writer:

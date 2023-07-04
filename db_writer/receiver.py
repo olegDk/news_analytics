@@ -30,7 +30,7 @@ async def run(loop):
         try:
             news_id = await db_client.insert_news(data)
             _ = await pinecone_client.insert_news(
-                news_id, f"{data.content.title} - {data.content.body}"
+                str(news_id), f"{data.content.title} - {data.content.body}"
             )
         except Exception as e:
             print(e)

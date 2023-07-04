@@ -25,7 +25,8 @@ async def run(loop):
     await nc.connect("nats:4222", loop=loop)
 
     async with websockets.connect(
-        "wss://api.benzinga.com/api/v1/news/stream?token={key}".format(key=BZ_API_KEY),
+        # "wss://api.benzinga.com/api/v1/news/stream?token={key}".format(key=BZ_API_KEY),
+        "ws://news_simulator:5678",
         max_size=10_000_000_000,
     ) as websocket:
         # Listen for SIGTERM signal to close WebSocket connection.
@@ -66,6 +67,7 @@ async def run(loop):
                 content=content,
                 timestamp=payload["data"]["timestamp"],
             )
+            print(news.SerializeToString())
             await nc.publish("news", news.SerializeToString())
 
     await nc.close()

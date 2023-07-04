@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Postgres
-docker run --name postgres \
-  -e POSTGRES_USER=admin \
-  -e POSTGRES_PASSWORD=admin \
-  -e POSTGRES_DB=news_db \
-  -v postgres_data:/var/lib/postgresql/data \
-  -v $(pwd)/init.sql:/docker-entrypoint-initdb.d/init.sql \
-  postgres:latest
+# docker run --name postgres \
+#   -e POSTGRES_USER=admin \
+#   -e POSTGRES_PASSWORD=admin \
+#   -e POSTGRES_DB=news_db \
+#   -v postgres_data:/var/lib/postgresql/data \
+#   -v $(pwd)/init.sql:/docker-entrypoint-initdb.d/init.sql \
+#   postgres:latest
 # docker run -d --name postgres \
 #   -e POSTGRES_USER=${POSTGRES_USER} \
 #   -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \

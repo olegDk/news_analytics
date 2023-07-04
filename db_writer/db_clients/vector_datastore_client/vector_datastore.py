@@ -40,7 +40,7 @@ class VectorDataStore(ABC):
         documents = []
         for i, chunk in enumerate(chunks):
             documents.append(
-                {"id": f"{uid}-{i}", "text": chunk, "metadata": {"source_id": source}}
+                Document(id=f"{uid}-{i}", text=chunk, metadata={"source_id": source})
             )
 
         return await self.upsert(documents)

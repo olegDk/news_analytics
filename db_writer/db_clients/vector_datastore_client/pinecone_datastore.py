@@ -4,7 +4,9 @@ import pinecone
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 import asyncio
 
-from db_clients.vector_datastore_client.vector_datastore import VectorDataStore
+from db_clients.vector_datastore_client.vector_datastore import (
+    VectorDataStore,
+)
 from models.models import (
     DocumentChunk,
     DocumentChunkMetadata,
