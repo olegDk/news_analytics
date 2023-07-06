@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS news_securities (
     PRIMARY KEY (news_id, security_id)
 );
 
-CREATE TABLE IF NOT EXISTS daily_summary (
+CREATE TABLE IF NOT EXISTS securities_summaries (
     id SERIAL PRIMARY KEY,
     summary TEXT,
     date DATE,

@@ -29,6 +29,15 @@ services:
       - postgres
     volumes:
       - ./db_writer:/app
+  summary_service:
+    build:
+      context: ./summary_service
+    env_file: .env
+    depends_on:
+      - nats
+      - postgres
+    volumes:
+      - ./summary_service:/app
   benzinga_newsfeed_websockets:
     build:
       context: ./benzinga_newsfeed_websockets
