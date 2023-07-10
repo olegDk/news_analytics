@@ -12,15 +12,25 @@ from models.api import (
     UpsertSemanticRequest,
     UpsertSemanticResponse,
     ResponseType,
+    News,
+    Summary,
+    NewsRequest,
+    NewsResponse,
+    SummaryRequest,
+    SummaryResponse,
 )
 from db_clients.vector_datastore_client.factory import get_datastore
+from db_clients.postgres_client.postgres_client import PostgresClient
 from analytics.file import get_document_from_file
 from analytics.analytics_client import process_query
+from fastapi.param_functions import Query
+from datetime import date
 
 from models.models import DocumentMetadata, Source
 
 
 app = FastAPI()
+pg_client = PostgresClient()
 
 
 @app.post(
@@ -120,7 +130,39 @@ async def delete_semantic(
         raise HTTPException(status_code=500, detail="Internal Service Error")
 
 
+@app.post("/get-news", response_model=NewsResponse)
+async def get_news(
+    request: NewsRequest = Body(...),
+):
+    try:
+        raw_news = await pg_client.get_news_by_symbol(request.symbol, request.date)
+        news = [News(**n) for n in raw_news]
+        return NewsResponse(news=news)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/get-summary", response_model=SummaryResponse)
+async def get_summary(
+    request: SummaryRequest = Body(...),
+):
+    try:
+        raw_summary = await pg_client.get_summary_by_symbol(
+            request.symbol, request.date
+        )
+        summary = Summary(summary=raw_summary)
+        return SummaryResponse(summary=summary)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.on_event("startup")
 async def startup():
     global datastore
     datastore = await get_datastore()
+    await pg_client.connect()
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await pg_client.close()

@@ -7,6 +7,7 @@ from models.models import (
 from pydantic import BaseModel
 from typing import List, Optional
 from enum import Enum
+from datetime import date
 
 
 class ResponseType(str, Enum):
@@ -47,3 +48,33 @@ class DeleteSemanticRequest(BaseModel):
 
 class DeleteSemanticResponse(BaseModel):
     success: bool
+
+
+class News(BaseModel):
+    id: int
+    title: str
+    content: str
+    timestamp: date
+    # add other fields as needed
+
+
+class Summary(BaseModel):
+    summary: str
+
+
+class NewsRequest(BaseModel):
+    symbol: str
+    date: date
+
+
+class SummaryRequest(BaseModel):
+    symbol: str
+    date: date
+
+
+class NewsResponse(BaseModel):
+    news: List[News]
+
+
+class SummaryResponse(BaseModel):
+    summary: Summary
