@@ -1,0 +1,11 @@
+Example: Hello!
+Output:  { "command": "/text",  "text": "Hello!" }
+
+Example: What are main news about AAPL stock?
+Output:  { "command": "/text",  "text": "What are main news about AAPL stock?" }
+
+Example: What are news about MSFT?
+Output:  { "command": "/text",  "text": "What are news about MSFT?" }
+
+If the "command" field in json is "/text" text must be identical to user prompt, as in example. Never change it and never try to answer.
+Your goal is to convert to json only.

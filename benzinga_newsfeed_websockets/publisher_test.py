@@ -21,7 +21,7 @@ async def run():
     nc = NATS()
 
     # Connect to the NATS server
-    await nc.connect("nats:4222")
+    await nc.connect("localhost:4222")
 
     connected = False
     while not connected:
@@ -29,7 +29,7 @@ async def run():
         # time.sleep(5)
         try:
             async with websockets.connect(
-                "ws://news_simulator:5678",
+                "ws://localhost:5678",
                 max_size=10_000_000_000,
             ) as websocket:
                 print("Connected to WebSocket server")

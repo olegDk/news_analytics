@@ -45,8 +45,31 @@ def refactor_json(data: dict):
     return news_data
 
 
-# data = reset_index(data)
-# data = refactor_json(data=data)
+def update_to_todays_date(data: dict):
+    new_data = []
+    for original_item in data:
+        item = copy.deepcopy(original_item)
+        if "timestamp" in item["data"]:
+            original_datetime = datetime.fromisoformat(
+                item["data"]["timestamp"].replace("Z", "+00:00")
+            )
+            today = datetime.now().replace(
+                hour=original_datetime.hour,
+                minute=original_datetime.minute,
+                second=original_datetime.second,
+                microsecond=original_datetime.microsecond,
+                tzinfo=original_datetime.tzinfo,
+            )
+            item["data"]["timestamp"] = today.isoformat(timespec="microseconds")
 
-# with open("test/news_data.json", "w") as f:
-#     json.dump(data, f, indent=4)
+            new_data.append(item)
+
+    return new_data
+
+
+# data = reset_index(data=data)
+# data = refactor_json(data=data)
+data = update_to_todays_date(data=data)
+
+with open("test/news_data.json", "w") as f:
+    json.dump(data, f, indent=4)

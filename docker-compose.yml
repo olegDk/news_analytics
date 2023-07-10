@@ -38,6 +38,22 @@ services:
       - postgres
     volumes:
       - ./summary_service:/app
+  api_server:
+    build:
+      context: ./api_server
+    env_file: .env
+    depends_on:
+      - postgres
+    volumes:
+      - ./api_server:/app
+  slack_bot:
+    build:
+      context: ./slack_bot
+    env_file: .env
+    depends_on:
+      - api_server
+    volumes:
+      - ./slack_bot:/app
   benzinga_newsfeed_websockets:
     build:
       context: ./benzinga_newsfeed_websockets

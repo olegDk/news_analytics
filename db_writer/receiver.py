@@ -1,5 +1,3 @@
-import os
-import json
 import asyncio
 from nats.aio.client import Client as NATS
 from news_pb2 import News  # news_pb2 is the generated module from news.proto

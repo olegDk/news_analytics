@@ -4,7 +4,7 @@ import asyncio
 from datetime import datetime
 from nats.aio.client import Client as NATS
 from news_pb2 import News
-from db_clients.postgres_client.postgres_client import PostgresClient
+from db_clients.postgres_client.postgres_client_test import PostgresClient
 from analytics.aiclient.openai_client import create_summary, update_summary
 
 
@@ -12,7 +12,7 @@ async def run(loop):
     nc = NATS()
 
     # Connect to the NATS server
-    await nc.connect("nats:4222", loop=loop)
+    await nc.connect("localhost:4222", loop=loop)
 
     # Create a connection to your databases
     db_client = PostgresClient()
