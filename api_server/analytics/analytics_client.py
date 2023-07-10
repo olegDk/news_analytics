@@ -1,7 +1,7 @@
 import os
 import json
 from typing import List, Optional
-from api_server.analytics.aiclient.openai_client import get_chat_completion
+from analytics.aiclient.openai_client import get_chat_completion
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Pinecone
 from dotenv import load_dotenv
@@ -24,7 +24,7 @@ separator_len = len(encoding.encode(SEPARATOR))
 
 
 def load_system_prompt() -> str:
-    with open("api_server/analytics/system_prompt.txt", "r", encoding="utf-8") as file:
+    with open("analytics/system_prompt.txt", "r", encoding="utf-8") as file:
         content = file.read()
 
     return content

@@ -1,4 +1,6 @@
-from db_clients.vector_datastore_client.vector_datastore import VectorDataStore
+from db_clients.vector_datastore_client.vector_datastore import (
+    VectorDataStore,
+)
 import os
 from dotenv import load_dotenv
 

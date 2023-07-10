@@ -9,7 +9,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 load_dotenv()
 
-ANALYTICS_SERVER_URL = "http://localhost:8000"
+# ANALYTICS_SERVER_URL = "http://localhost:8000"
+ANALYTICS_SERVER_URL = "http://api_server:8000"
 
 # Initializes your app with your bot token and signing secret
 app = AsyncApp(
