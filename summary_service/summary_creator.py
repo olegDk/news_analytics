@@ -22,7 +22,7 @@ async def run(loop):
         subject = msg.subject
         data = News()
         data.ParseFromString(msg.data)
-        print(f"Received a message on '{subject}':\n{data}")
+        # print(f"Received a message on '{subject}':\n{data}")
 
         # For each security, check if a summary for today already exists,
         # if not, create a new one, otherwise update the existing one

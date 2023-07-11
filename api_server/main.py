@@ -23,7 +23,6 @@ from db_clients.vector_datastore_client.factory import get_datastore
 from db_clients.postgres_client.postgres_client import PostgresClient
 from analytics.file import get_document_from_file
 from analytics.analytics_client import process_query
-from fastapi.param_functions import Query
 from datetime import date
 
 from models.models import DocumentMetadata, Source
@@ -136,6 +135,7 @@ async def get_news(
 ):
     try:
         raw_news = await pg_client.get_news_by_symbol(request.symbol, request.date)
+        print(len(raw_news))
         news = [News(**n) for n in raw_news]
         return NewsResponse(news=news)
     except Exception as e:
@@ -150,6 +150,7 @@ async def get_summary(
         raw_summary = await pg_client.get_summary_by_symbol(
             request.symbol, request.date
         )
+        print(raw_summary)
         summary = Summary(summary=raw_summary)
         return SummaryResponse(summary=summary)
     except Exception as e:

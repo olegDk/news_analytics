@@ -37,7 +37,7 @@ async def run():
 
                 try:
                     async for message in websocket:
-                        print("Received message:", message)
+                        # print("Received message:", message)
                         payload = json.loads(message)
                         if "content" in payload["data"]:
                             if "securities" in payload["data"]["content"]:
@@ -75,7 +75,7 @@ async def run():
                             content=content,
                             timestamp=payload["data"]["timestamp"],
                         )
-                        print(news.SerializeToString())
+                        # print(news.SerializeToString())
                         await nc.publish("news", news.SerializeToString())
                 except Exception as e:
                     print(f"Exception in WebSocket for loop: {e}")

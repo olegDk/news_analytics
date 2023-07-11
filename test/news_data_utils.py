@@ -3,7 +3,7 @@ from datetime import datetime
 import copy
 
 # Load the data from the JSON file
-with open("test/news_data.json", "r") as f:
+with open("test/news_data_test.json", "r") as f:
     data = json.load(f)
 
 
@@ -71,5 +71,5 @@ def update_to_todays_date(data: dict):
 # data = refactor_json(data=data)
 data = update_to_todays_date(data=data)
 
-with open("test/news_data.json", "w") as f:
+with open("test/news_data_test.json", "w") as f:
     json.dump(data, f, indent=4)

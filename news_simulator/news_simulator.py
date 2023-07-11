@@ -9,7 +9,7 @@ async def send_json(websocket):
     # Register.
     connected.add(websocket)
     try:
-        with open("news_data.json", "r") as f:
+        with open("news_data_test.json", "r") as f:
             data = json.load(f)
 
         while True:

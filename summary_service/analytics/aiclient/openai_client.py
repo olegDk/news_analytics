@@ -9,6 +9,51 @@ openai.api_key = os.environ.get("OPEN_AI_API_KEY")
 
 
 from tenacity import retry, wait_random_exponential, stop_after_attempt
+from langchain import PromptTemplate
+from langchain.docstore.document import Document
+from langchain.chains.summarize import load_summarize_chain
+from langchain.chat_models import ChatOpenAI
+
+
+def setup_langchain():
+    chat_llm = ChatOpenAI(
+        temperature=1,
+        openai_api_key=os.environ.get("OPENAI_API_KEY"),
+    )
+
+    question_prompt_template = """
+                    Please provide a summary of the following text.
+                    TEXT: {text}
+                    SUMMARY:
+                    """
+
+    question_prompt = PromptTemplate(
+        template=question_prompt_template, input_variables=["text"]
+    )
+
+    refine_prompt_template = """
+                Write a concise summary of the following text delimited by triple backquotes.
+                Return your response in bullet points which covers the key points of the text.
+                ```{text}```
+                BULLET POINT SUMMARY:
+                """
+
+    refine_prompt = PromptTemplate(
+        template=refine_prompt_template, input_variables=["text"]
+    )
+
+    refine_chain = load_summarize_chain(
+        chat_llm,
+        chain_type="refine",
+        question_prompt=question_prompt,
+        refine_prompt=refine_prompt,
+        return_intermediate_steps=True,
+    )
+
+    return refine_chain
+
+
+refine_chain = setup_langchain()
 
 
 @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(3))
@@ -65,8 +110,17 @@ def get_chat_completion(
 
 
 def create_summary(news_text: str) -> str:
-    return news_text
+    doc1 = Document(page_content=news_text)
+    docs = [doc1]
+
+    refine_outputs = refine_chain({"input_documents": docs})
+    return refine_outputs["output_text"]
 
 
 def update_summary(existing_summary: str, new_news_text: str) -> str:
-    return existing_summary + new_news_text
+    doc1 = Document(page_content=existing_summary)
+    doc2 = Document(page_content=new_news_text)
+    docs = [doc1, doc2]
+
+    refine_outputs = refine_chain({"input_documents": docs})
+    return refine_outputs["output_text"]

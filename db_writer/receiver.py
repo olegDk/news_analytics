@@ -22,7 +22,7 @@ async def run(loop):
         subject = msg.subject
         data = News()
         data.ParseFromString(msg.data)
-        print(f"Received a message on '{subject}':\n{data}")
+        # print(f"Received a message on '{subject}':\n{data}")
 
         # Insert the data into your database
         try:

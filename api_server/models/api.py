@@ -51,11 +51,7 @@ class DeleteSemanticResponse(BaseModel):
 
 
 class News(BaseModel):
-    id: int
-    title: str
     content: str
-    timestamp: date
-    # add other fields as needed
 
 
 class Summary(BaseModel):

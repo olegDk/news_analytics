@@ -120,6 +120,10 @@ class PostgresClient:
                     )
 
                     if security_id is None:
+                        print("====================================")
+                        print(security_id)
+                        print(symbol)
+                        print("====================================")
                         try:
                             security_id = await conn.fetchval(
                                 """
@@ -189,6 +193,44 @@ class PostgresClient:
                 except Exception as e:
                     print("Failed to update summary: ", e)
                     raise
+
+    async def get_summary_by_symbol(self, symbol, date):
+        async with self.db_pool.acquire() as conn:
+            try:
+                summary = await conn.fetchval(
+                    """
+                    SELECT ss.summary FROM securities AS s
+                    INNER JOIN securities_summaries AS ss
+                    ON s.id = ss.security_id
+                    WHERE s.symbol = $1 AND ss.date = $2
+                    """,
+                    symbol,
+                    date,
+                )
+                return summary
+            except Exception as e:
+                print("Failed to get summary by symbol: ", e)
+                return None
+
+    async def get_news_by_symbol(self, symbol, date):
+        async with self.db_pool.acquire() as conn:
+            try:
+                news = await conn.fetch(
+                    """
+                    SELECT n.content FROM news AS n
+                    INNER JOIN news_securities AS ns
+                    ON n.id = ns.news_id
+                    INNER JOIN securities AS s
+                    ON s.id = ns.security_id
+                    WHERE s.symbol = $1 AND DATE(n.timestamp) = $2
+                    """,
+                    symbol,
+                    date,
+                )
+                return news
+            except Exception as e:
+                print("Failed to get news by symbol: ", e)
+                return None
 
     async def close(self):
         await self.db_pool.close()

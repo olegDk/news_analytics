@@ -108,6 +108,41 @@ class PostgresClient:
 
         return news_id
 
+    async def get_or_insert_security(self, symbol, exchange):
+        async with self.db_pool.acquire() as conn:
+            async with conn.transaction():
+                try:
+                    security_id = await conn.fetchval(
+                        """
+                        SELECT id FROM securities WHERE symbol = $1
+                        """,
+                        symbol,
+                    )
+
+                    if security_id is None:
+                        print("====================================")
+                        print(security_id)
+                        print(symbol)
+                        print("====================================")
+                        try:
+                            security_id = await conn.fetchval(
+                                """
+                                INSERT INTO securities (symbol, exchange)
+                                VALUES ($1, $2)
+                                RETURNING id;
+                                """,
+                                symbol,
+                                exchange,
+                            )
+                        except Exception as e:
+                            print("Failed to insert into securities: ", e)
+                            raise  # Propagate the exception up
+                except Exception as e:
+                    print("Failed to get security_id: ", e)
+                    raise  # Propagate the exception up
+
+        return security_id
+
     async def get_summary(self, security_id, date):
         async with self.db_pool.acquire() as conn:
             try:
@@ -182,7 +217,7 @@ class PostgresClient:
             try:
                 news = await conn.fetch(
                     """
-                    SELECT n.* FROM news AS n
+                    SELECT n.content FROM news AS n
                     INNER JOIN news_securities AS ns
                     ON n.id = ns.news_id
                     INNER JOIN securities AS s

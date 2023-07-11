@@ -108,6 +108,41 @@ class PostgresClient:
 
         return news_id
 
+    async def get_or_insert_security(self, symbol, exchange):
+        async with self.db_pool.acquire() as conn:
+            async with conn.transaction():
+                try:
+                    security_id = await conn.fetchval(
+                        """
+                        SELECT id FROM securities WHERE symbol = $1
+                        """,
+                        symbol,
+                    )
+
+                    if security_id is None:
+                        print("====================================")
+                        print(security_id)
+                        print(symbol)
+                        print("====================================")
+                        try:
+                            security_id = await conn.fetchval(
+                                """
+                                INSERT INTO securities (symbol, exchange)
+                                VALUES ($1, $2)
+                                RETURNING id;
+                                """,
+                                symbol,
+                                exchange,
+                            )
+                        except Exception as e:
+                            print("Failed to insert into securities: ", e)
+                            raise  # Propagate the exception up
+                except Exception as e:
+                    print("Failed to get security_id: ", e)
+                    raise  # Propagate the exception up
+
+        return security_id
+
     async def get_summary(self, security_id, date):
         async with self.db_pool.acquire() as conn:
             try:
@@ -158,6 +193,44 @@ class PostgresClient:
                 except Exception as e:
                     print("Failed to update summary: ", e)
                     raise
+
+    async def get_summary_by_symbol(self, symbol, date):
+        async with self.db_pool.acquire() as conn:
+            try:
+                summary = await conn.fetchval(
+                    """
+                    SELECT ss.summary FROM securities AS s
+                    INNER JOIN securities_summaries AS ss
+                    ON s.id = ss.security_id
+                    WHERE s.symbol = $1 AND ss.date = $2
+                    """,
+                    symbol,
+                    date,
+                )
+                return summary
+            except Exception as e:
+                print("Failed to get summary by symbol: ", e)
+                return None
+
+    async def get_news_by_symbol(self, symbol, date):
+        async with self.db_pool.acquire() as conn:
+            try:
+                news = await conn.fetch(
+                    """
+                    SELECT n.content FROM news AS n
+                    INNER JOIN news_securities AS ns
+                    ON n.id = ns.news_id
+                    INNER JOIN securities AS s
+                    ON s.id = ns.security_id
+                    WHERE s.symbol = $1 AND DATE(n.timestamp) = $2
+                    """,
+                    symbol,
+                    date,
+                )
+                return news
+            except Exception as e:
+                print("Failed to get news by symbol: ", e)
+                return None
 
     async def close(self):
         await self.db_pool.close()
