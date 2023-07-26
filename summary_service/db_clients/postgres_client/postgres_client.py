@@ -9,7 +9,8 @@ load_dotenv()
 POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_DB = os.getenv("POSTGRES_DB")
-POSTGRES_HOST = "postgres"
+POSTGRES_HOST = os.getenv("POSTGRES_HOST")
+POSTGRES_PORT = os.getenv("POSTGRES_PORT")
 
 
 class PostgresClient:
@@ -27,6 +28,7 @@ class PostgresClient:
                     password=POSTGRES_PASSWORD,
                     database=POSTGRES_DB,
                     host=POSTGRES_HOST,
+                    port=POSTGRES_PORT,
                 )
                 return
             except Exception:

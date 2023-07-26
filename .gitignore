@@ -51,3 +51,5 @@ l10n/
 news_analytics/
 .env
 .vscode
+init_remote_postgres.sql
+test_remote_postgres.sh

@@ -1,16 +1,5 @@
 version: "3.8"
 services:
-  postgres:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
   nats:
     image: nats:latest
     ports:
@@ -26,7 +15,6 @@ services:
     env_file: .env
     depends_on:
       - nats
-      - postgres
     volumes:
       - ./db_writer:/app
   summary_service:
@@ -35,15 +23,12 @@ services:
     env_file: .env
     depends_on:
       - nats
-      - postgres
     volumes:
       - ./summary_service:/app
   api_server:
     build:
       context: ./api_server
     env_file: .env
-    depends_on:
-      - postgres
     volumes:
       - ./api_server:/app
     ports:
@@ -64,9 +49,79 @@ services:
     env_file: .env
     depends_on:
       - nats
-      - postgres
       - news_simulator
     volumes:
       - ./benzinga_newsfeed_websockets:/app
-volumes:
-  postgres_data:
+# Dev:
+# version: "3.8"
+# services:
+#   postgres:
+#     image: postgres:latest
+#     environment:
+#       POSTGRES_USER: ${POSTGRES_USER}
+#       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#       POSTGRES_DB: ${POSTGRES_DB}
+#     ports:
+#       - "5433:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+#   nats:
+#     image: nats:latest
+#     ports:
+#       - "4222:4222"
+#   news_simulator:
+#     build:
+#       context: ./news_simulator
+#     volumes:
+#       - ./news_simulator:/app
+#   db_writer:
+#     build:
+#       context: ./db_writer
+#     env_file: .env
+#     depends_on:
+#       - nats
+#       - postgres
+#     volumes:
+#       - ./db_writer:/app
+#   summary_service:
+#     build:
+#       context: ./summary_service
+#     env_file: .env
+#     depends_on:
+#       - nats
+#       - postgres
+#     volumes:
+#       - ./summary_service:/app
+#   api_server:
+#     build:
+#       context: ./api_server
+#     env_file: .env
+#     depends_on:
+#       - postgres
+#     volumes:
+#       - ./api_server:/app
+#     ports:
+#       - "8000:8000"
+#   slack_bot:
+#     build:
+#       context: ./slack_bot
+#     env_file: .env
+#     depends_on:
+#       - api_server
+#     volumes:
+#       - ./slack_bot:/app
+#     ports:
+#       - "3000:3000"
+#   benzinga_newsfeed_websockets:
+#     build:
+#       context: ./benzinga_newsfeed_websockets
+#     env_file: .env
+#     depends_on:
+#       - nats
+#       - postgres
+#       - news_simulator
+#     volumes:
+#       - ./benzinga_newsfeed_websockets:/app
+# volumes:
+#   postgres_data:
