@@ -135,7 +135,6 @@ async def get_news(
 ):
     try:
         raw_news = await pg_client.get_news_by_symbol(request.symbol, request.date)
-        print(len(raw_news))
         news = [News(**n) for n in raw_news]
         return NewsResponse(news=news)
     except Exception as e:
@@ -150,7 +149,6 @@ async def get_summary(
         raw_summary = await pg_client.get_summary_by_symbol(
             request.symbol, request.date
         )
-        print(raw_summary)
         summary = Summary(summary=raw_summary)
         return SummaryResponse(summary=summary)
     except Exception as e:

@@ -6,7 +6,7 @@ base_url = "http://localhost:8000"
 
 # Update these values to the symbol and date you want to use
 symbol = "AMZN"
-date = date(year=2023, month=7, day=11).isoformat()
+date = date(year=2023, month=7, day=31).isoformat()
 
 headers = {"Content-type": "application/json", "Accept": "text/plain"}
 

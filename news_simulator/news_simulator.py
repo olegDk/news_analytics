@@ -1,8 +1,32 @@
 import asyncio
 import websockets
 import json
+import copy
+from datetime import datetime
 
 connected = set()
+
+
+def update_to_todays_date(data: dict):
+    new_data = []
+    for original_item in data:
+        item = copy.deepcopy(original_item)
+        if "timestamp" in item["data"]:
+            original_datetime = datetime.fromisoformat(
+                item["data"]["timestamp"].replace("Z", "+00:00")
+            )
+            today = datetime.now().replace(
+                hour=original_datetime.hour,
+                minute=original_datetime.minute,
+                second=original_datetime.second,
+                microsecond=original_datetime.microsecond,
+                tzinfo=original_datetime.tzinfo,
+            )
+            item["data"]["timestamp"] = today.isoformat(timespec="microseconds")
+
+            new_data.append(item)
+
+    return new_data
 
 
 async def send_json(websocket):
@@ -11,6 +35,8 @@ async def send_json(websocket):
     try:
         with open("news_data_test.json", "r") as f:
             data = json.load(f)
+
+        data = update_to_todays_date(data=data)
 
         while True:
             for item in data:

@@ -14,9 +14,11 @@ POSTGRES_PORT = os.getenv("POSTGRES_PORT")
 
 
 class PostgresClient:
-    def __init__(self, retries=5, delay=5):
+    def __init__(self, retries=5, delay=5, min_pool_size=2, max_pool_size=5):
         self.retries = retries
         self.delay = delay
+        self.min_pool_size = min_pool_size
+        self.max_pool_size = max_pool_size
         self.db_pool = None
 
     async def connect(self):
@@ -29,6 +31,8 @@ class PostgresClient:
                     database=POSTGRES_DB,
                     host=POSTGRES_HOST,
                     port=POSTGRES_PORT,
+                    min_size=self.min_pool_size,  # Minimum number of connection in the pool.
+                    max_size=self.max_pool_size,  # Maximum number of connection in the pool.
                 )
                 return
             except Exception:

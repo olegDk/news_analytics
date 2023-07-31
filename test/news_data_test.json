@@ -21,7 +21,7 @@
           }
         ]
       },
-      "timestamp": "2023-07-11T13:36:18.653000+00:00"
+      "timestamp": "2023-07-31T13:36:18.653000+00:00"
     }
   },
   {
@@ -33,9 +33,15 @@
         "id": 2,
         "title": "Barclays Maintains Overweight on Micron Technology, Raises Price Target to $75",
         "body": "Barclays  analyst Tom O'Malley   maintains Micron Technology (NASDAQ:MU) with a Overweight and raises the price target from $70 to $75.",
-        "securities": []
+        "securities": [
+          {
+            "symbol": "MU",
+            "exchange": "NASDAQ",
+            "primary": true
+          }
+        ]
       },
-      "timestamp": "2023-07-11T13:36:28.347000+00:00"
+      "timestamp": "2023-07-31T13:36:28.347000+00:00"
     }
   },
   {
@@ -85,7 +91,7 @@
           }
         ]
       },
-      "timestamp": "2023-07-11T13:58:32.974000+00:00"
+      "timestamp": "2023-07-31T13:58:32.974000+00:00"
     }
   },
   {
@@ -105,7 +111,7 @@
           }
         ]
       },
-      "timestamp": "2023-07-11T11:11:12.594000+00:00"
+      "timestamp": "2023-07-31T11:11:12.594000+00:00"
     }
   }
 ]
