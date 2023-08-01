@@ -1,7 +1,6 @@
 from typing import Optional
 from fastapi import FastAPI, File, Form, HTTPException, Depends, Body, UploadFile
-
-
+from fastapi.middleware.cors import CORSMiddleware
 from models.api import (
     DeleteSemanticRequest,
     DeleteSemanticResponse,
@@ -29,6 +28,15 @@ from models.models import DocumentMetadata, Source
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 pg_client = PostgresClient()
 
 
