@@ -1,3 +1,9 @@
+-- DROP TABLE IF EXISTS news_securities;
+-- DROP TABLE IF EXISTS securities_summaries;
+-- DROP TABLE IF EXISTS sector_summary;
+-- DROP TABLE IF EXISTS news;
+-- DROP TABLE IF EXISTS securities;
+
 CREATE TABLE IF NOT EXISTS securities (
     id SERIAL PRIMARY KEY,
     symbol VARCHAR(10) UNIQUE NOT NULL,

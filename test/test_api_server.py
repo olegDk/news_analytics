@@ -5,8 +5,8 @@ from datetime import date
 base_url = "http://localhost:8000"
 
 # Update these values to the symbol and date you want to use
-symbol = "AMZN"
-date = date(year=2023, month=7, day=31).isoformat()
+symbol = "STZ"
+date = date(year=2023, month=8, day=8).isoformat()
 
 headers = {"Content-type": "application/json", "Accept": "text/plain"}
 
