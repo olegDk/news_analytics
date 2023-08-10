@@ -137,60 +137,44 @@ async def delete_semantic(
         raise HTTPException(status_code=500, detail="Internal Service Error")
 
 
-# @app.post("/get-news", response_model=NewsResponse)
-# async def get_news(
-#     request: NewsRequest = Body(...),
-# ):
-#     try:
-#         raw_news = await pg_client.get_news_by_symbol(request.symbol, request.date)
-#         print(raw_news)
-#         news = [News(**n) for n in raw_news]
-#         return NewsResponse(news=news)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
-# @app.post("/get-summary", response_model=SummaryResponse)
-# async def get_summary(
-#     request: SummaryRequest = Body(...),
-# ):
-#     try:
-#         raw_summary = await pg_client.get_summary_by_symbol(
-#             request.symbol, request.date
-#         )
-#         print(raw_summary)
-#         summary = Summary(summary=raw_summary)
-#         return SummaryResponse(summary=summary)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
 @app.post("/get-news", response_model=NewsResponse)
-async def get_news(
-    request: NewsRequest = Body(...),
-):
+async def get_news(request: NewsRequest = Body(...)):
     try:
         raw_news = await pg_client.get_news_by_symbol(request.symbol, request.date)
-        news = [
-            News(content=n["content"], timestamp=n["timestamp"]) for n in raw_news
-        ]  # Adding timestamp
+
+        if not raw_news:
+            raise HTTPException(
+                status_code=404,
+                detail=f"There is no news for symbol {request.symbol} on date {request.date}.",
+            )
+
+        news = [News(content=n["content"], timestamp=n["timestamp"]) for n in raw_news]
         return NewsResponse(news=news)
+
+    except HTTPException as he:  # Handle our raised HTTPException first
+        raise he
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/get-summary", response_model=SummaryResponse)
-async def get_summary(
-    request: SummaryRequest = Body(...),
-):
+async def get_summary(request: SummaryRequest = Body(...)):
     try:
         raw_summary = await pg_client.get_summary_by_symbol(
             request.symbol, request.date
         )
-        summary = Summary(
-            summary=raw_summary["summary"], date=raw_summary["date"]
-        )  # Adding date
+
+        if not raw_summary:
+            raise HTTPException(
+                status_code=404,
+                detail=f"There is no summary for symbol {request.symbol} on date {request.date}.",
+            )
+
+        summary = Summary(summary=raw_summary["summary"], date=raw_summary["date"])
         return SummaryResponse(summary=summary)
+
+    except HTTPException as he:  # Handle our raised HTTPException first
+        raise he
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
