@@ -33,18 +33,18 @@ async def send_json(websocket):
     # Register.
     connected.add(websocket)
     try:
-        with open("news_data_test.json", "r") as f:
+        with open("news_data.json", "r") as f:
             data = json.load(f)
 
         data = update_to_todays_date(data=data)
 
-        while True:
-            for item in data:
-                for ws in connected:
-                    if not ws.closed:
-                        print("Sending message...")
-                        await ws.send(json.dumps(item))
-                await asyncio.sleep(1)  # wait for 1 second
+        for item in data:
+            for ws in connected:
+                if not ws.closed:
+                    print("Sending message...")
+                    await ws.send(json.dumps(item))
+            await asyncio.sleep(1)  # wait for 1 second
+
     except Exception as e:
         print(f"Exception: {e}")
     finally:
