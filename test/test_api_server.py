@@ -2,7 +2,8 @@ import requests
 import json
 from datetime import date
 
-base_url = "http://localhost:8000"
+# base_url = "http://localhost:8000"
+base_url = "http://165.22.191.68:8000"
 
 # Update these values to the symbol and date you want to use
 symbol = "STZ"
