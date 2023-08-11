@@ -53,3 +53,4 @@ news_analytics/
 .vscode
 init_remote_postgres.sql
 test_remote_postgres.sh
+*.log
