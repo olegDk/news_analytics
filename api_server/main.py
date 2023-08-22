@@ -148,7 +148,11 @@ async def get_news(request: NewsRequest = Body(...)):
                 detail=f"There is no news for symbol {request.symbol} on date {request.date}.",
             )
 
-        news = [News(content=n["content"], timestamp=n["timestamp"]) for n in raw_news]
+        # Include hardcoded sources for each news item
+        news = [
+            News(content=n["content"], timestamp=n["timestamp"], sources=["Benzinga"])
+            for n in raw_news
+        ]
         return NewsResponse(news=news)
 
     except HTTPException as he:  # Handle our raised HTTPException first
@@ -170,7 +174,25 @@ async def get_summary(request: SummaryRequest = Body(...)):
                 detail=f"There is no summary for symbol {request.symbol} on date {request.date}.",
             )
 
-        summary = Summary(summary=raw_summary["summary"], date=raw_summary["date"])
+        # Hardcode the sources for the summary
+        hard_coded_sources = [
+            News(
+                content="U.S. stocks traded higher this morning, with the Dow Jones gaining more than 200 points on Friday. Following the market opening Friday, the Dow traded up 0.63% to 34,338.23 while the NASDAQ rose 1.05% to 13,734.23. The S&P 500, also rose, gaining, 0.84% to 4,433.37.",
+                sources=["Benzinga"],
+                timestamp="2023-08-15T10:29:39.775Z",
+            ),
+            News(
+                content="U.S. stocks traded higher this morning, with the Dow Jones gaining more than 200 points on Friday. Following the market opening Friday, the Dow traded up 0.63% to 34,338.23 while the NASDAQ rose 1.05% to 13,734.23. The S&P 500, also rose, gaining, 0.84% to 4,433.37.",
+                sources=["Benzinga"],
+                timestamp="2023-08-15T10:29:39.775Z",
+            ),
+        ]
+
+        summary = Summary(
+            summary=raw_summary["summary"],
+            date=raw_summary["date"],
+            sources=hard_coded_sources,
+        )
         return SummaryResponse(summary=summary)
 
     except HTTPException as he:  # Handle our raised HTTPException first

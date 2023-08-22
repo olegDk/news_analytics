@@ -53,11 +53,13 @@ class DeleteSemanticResponse(BaseModel):
 class News(BaseModel):
     content: str
     timestamp: datetime
+    sources: List[str]
 
 
 class Summary(BaseModel):
     summary: str
     date: date
+    sources: List[News]
 
 
 class NewsRequest(BaseModel):
