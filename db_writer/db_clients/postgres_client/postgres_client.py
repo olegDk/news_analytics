@@ -58,13 +58,12 @@ class PostgresClient:
                 try:
                     news_id = await conn.fetchval(
                         """
-                        INSERT INTO news (kind, action, content, timestamp)
-                        VALUES ($1, $2, $3, $4)
+                        INSERT INTO news (title, content, timestamp)
+                        VALUES ($1, $2, $3)
                         RETURNING id;
                         """,
-                        data.kind,
-                        data.action,
-                        f"{data.content.title} - {data.content.body}",
+                        data.content.title,
+                        data.content.body,
                         timestamp,
                     )
                 except Exception as e:
@@ -126,10 +125,6 @@ class PostgresClient:
                     )
 
                     if security_id is None:
-                        print("====================================")
-                        print(security_id)
-                        print(symbol)
-                        print("====================================")
                         try:
                             security_id = await conn.fetchval(
                                 """

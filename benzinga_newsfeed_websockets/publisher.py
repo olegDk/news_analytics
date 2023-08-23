@@ -25,8 +25,6 @@ async def run():
 
     connected = False
     while not connected:
-        # print("Sleeping for 5 seconds to give time for news simulator to start")
-        # time.sleep(5)
         try:
             async with websockets.connect(
                 "ws://news_simulator:5678",
@@ -37,7 +35,6 @@ async def run():
 
                 try:
                     async for message in websocket:
-                        # print("Received message:", message)
                         payload = json.loads(message)
                         if "content" in payload["data"]:
                             if "securities" in payload["data"]["content"]:
@@ -45,12 +42,10 @@ async def run():
                                     Security(
                                         symbol=s["symbol"],
                                         exchange=s["exchange"],
-                                        primary=s["primary"],
                                     )
                                     for s in payload["data"]["content"]["securities"]
                                 ]
                                 content = Content(
-                                    id=payload["data"]["content"]["id"],
                                     title=BeautifulSoup(
                                         payload["data"]["content"]["title"],
                                         "html.parser",
@@ -69,13 +64,10 @@ async def run():
                             continue
 
                         news = News(
-                            kind=payload["kind"],
-                            action=payload["data"]["action"],
-                            id=payload["data"]["id"],
                             content=content,
                             timestamp=payload["data"]["timestamp"],
+                            sources=["Benzinga"],  # Add this line
                         )
-                        # print(news.SerializeToString())
                         await nc.publish("news", news.SerializeToString())
                 except Exception as e:
                     print(f"Exception in WebSocket for loop: {e}")

@@ -12,8 +12,7 @@ CREATE TABLE IF NOT EXISTS securities (
 
 CREATE TABLE IF NOT EXISTS news (
     id SERIAL PRIMARY KEY,
-    kind VARCHAR(50),
-    action VARCHAR(50),
+    title TEXT,
     content TEXT,
     timestamp TIMESTAMP
 );

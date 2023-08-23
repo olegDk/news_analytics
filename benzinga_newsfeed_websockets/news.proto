@@ -3,20 +3,16 @@ syntax = "proto3";
 message Security {
   string symbol = 1;
   string exchange = 2;
-  bool primary = 3;
 }
 
 message Content {
-  int32 id = 1;
-  string title = 2;
-  string body = 3;
-  repeated Security securities = 4;
+  string title = 1;
+  string body = 2;
+  repeated Security securities = 3;
 }
 
 message News {
-  string kind = 1;
-  string action = 2;
-  int32 id = 3;
-  Content content = 4;
-  string timestamp = 5;
+  Content content = 1;
+  string timestamp = 2;
+  repeated string sources = 3;
 }
