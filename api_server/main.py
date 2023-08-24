@@ -148,9 +148,9 @@ async def get_news(request: NewsRequest = Body(...)):
                 detail=f"There is no news for symbol {request.symbol} on date {request.date}.",
             )
 
-        # Include hardcoded sources for each news item
+        # Map fetched data to NewsResponse model
         news = [
-            News(content=n["content"], timestamp=n["timestamp"], sources=["Benzinga"])
+            News(content=n["content"], timestamp=n["timestamp"], sources=n["sources"])
             for n in raw_news
         ]
         return NewsResponse(news=news)
@@ -164,34 +164,29 @@ async def get_news(request: NewsRequest = Body(...)):
 @app.post("/get-summary", response_model=SummaryResponse)
 async def get_summary(request: SummaryRequest = Body(...)):
     try:
-        raw_summary = await pg_client.get_summary_by_symbol(
-            request.symbol, request.date
-        )
+        data = await pg_client.get_summary_by_symbol(request.symbol, request.date)
 
-        if not raw_summary:
+        if not data:
             raise HTTPException(
                 status_code=404,
                 detail=f"There is no summary for symbol {request.symbol} on date {request.date}.",
             )
 
-        # Hardcode the sources for the summary
-        hard_coded_sources = [
+        # Transforming the news_records to the required format.
+        news_sources = [
             News(
-                content="U.S. stocks traded higher this morning, with the Dow Jones gaining more than 200 points on Friday. Following the market opening Friday, the Dow traded up 0.63% to 34,338.23 while the NASDAQ rose 1.05% to 13,734.23. The S&P 500, also rose, gaining, 0.84% to 4,433.37.",
-                sources=["Benzinga"],
-                timestamp="2023-08-15T10:29:39.775Z",
-            ),
-            News(
-                content="U.S. stocks traded higher this morning, with the Dow Jones gaining more than 200 points on Friday. Following the market opening Friday, the Dow traded up 0.63% to 34,338.23 while the NASDAQ rose 1.05% to 13,734.23. The S&P 500, also rose, gaining, 0.84% to 4,433.37.",
-                sources=["Benzinga"],
-                timestamp="2023-08-15T10:29:39.775Z",
-            ),
+                content=record["content"],
+                sources=[record["source"]],
+                timestamp=record["timestamp"].isoformat()
+                + "Z",  # Convert to the expected timestamp format
+            )
+            for record in data["news"]
         ]
 
         summary = Summary(
-            summary=raw_summary["summary"],
-            date=raw_summary["date"],
-            sources=hard_coded_sources,
+            summary=data["summary"]["summary"],
+            date=data["summary"]["date"],
+            sources=news_sources,
         )
         return SummaryResponse(summary=summary)
 

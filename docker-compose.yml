@@ -11,10 +11,10 @@ services:
   #   volumes:
   #     - postgres_data:/var/lib/postgresql/data
   #     - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-  nats:
-    image: nats:latest
-    ports:
-      - "4222:4222"
+  # nats:
+  # image: nats:latest
+  # ports:
+  #   - "4222:4222"
   news_simulator:
     build:
       context: ./news_simulator
@@ -73,3 +73,5 @@ services:
       - news_simulator
     volumes:
       - ./benzinga_newsfeed_websockets:/app
+# volumes:
+#   postgres_data:

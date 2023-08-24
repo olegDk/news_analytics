@@ -58,13 +58,12 @@ class PostgresClient:
                 try:
                     news_id = await conn.fetchval(
                         """
-                        INSERT INTO news (kind, action, content, timestamp)
-                        VALUES ($1, $2, $3, $4)
+                        INSERT INTO news (title, content, timestamp)
+                        VALUES ($1, $2, $3)
                         RETURNING id;
                         """,
-                        data.kind,
-                        data.action,
-                        f"{data.content.title} - {data.content.body}",
+                        data.content.title,
+                        data.content.body,
                         timestamp,
                     )
                 except Exception as e:
@@ -112,6 +111,22 @@ class PostgresClient:
                         print("Failed to insert into news_securities: ", e)
                         raise  # Propagate the exception up
 
+                # Insert sources data
+                for source in data.sources:
+                    try:
+                        await conn.execute(
+                            """
+                            INSERT INTO news_sources (news_id, source)
+                            VALUES ($1, $2)
+                            ON CONFLICT (news_id, source) DO NOTHING;
+                            """,
+                            news_id,
+                            source,
+                        )
+                    except Exception as e:
+                        print("Failed to insert into news_sources: ", e)
+                        raise
+
         return news_id
 
     async def get_or_insert_security(self, symbol, exchange):
@@ -126,10 +141,6 @@ class PostgresClient:
                     )
 
                     if security_id is None:
-                        print("====================================")
-                        print(security_id)
-                        print(symbol)
-                        print("====================================")
                         try:
                             security_id = await conn.fetchval(
                                 """
@@ -203,6 +214,7 @@ class PostgresClient:
     async def get_summary_by_symbol(self, symbol, date):
         async with self.db_pool.acquire() as conn:
             try:
+                # Fetching the summary.
                 summary_record = await conn.fetchrow(
                     """
                     SELECT ss.summary, ss.date FROM securities AS s
@@ -213,7 +225,27 @@ class PostgresClient:
                     symbol,
                     date,
                 )
-                return summary_record
+
+                if not summary_record:
+                    return None
+
+                # Fetching related news articles for the summary.
+                news_records = await conn.fetch(
+                    """
+                    SELECT n.content, n.timestamp, nsrc.source 
+                    FROM news_securities AS ns
+                    INNER JOIN news AS n ON ns.news_id = n.id
+                    INNER JOIN news_sources AS nsrc ON n.id = nsrc.news_id
+                    WHERE ns.security_id = (
+                        SELECT id FROM securities WHERE symbol = $1
+                    ) AND DATE(n.timestamp) = $2
+                    """,
+                    symbol,
+                    date,
+                )
+
+                return {"summary": summary_record, "news": news_records}
+
             except Exception as e:
                 print("Failed to get summary by symbol: ", e)
                 return None
@@ -221,9 +253,10 @@ class PostgresClient:
     async def get_news_by_symbol(self, symbol, date):
         async with self.db_pool.acquire() as conn:
             try:
-                news = await conn.fetch(
+                # Fetch news content and timestamp
+                news_records = await conn.fetch(
                     """
-                    SELECT n.content, n.timestamp FROM news AS n
+                    SELECT n.id, n.content, n.timestamp FROM news AS n
                     INNER JOIN news_securities AS ns
                     ON n.id = ns.news_id
                     INNER JOIN securities AS s
@@ -233,7 +266,30 @@ class PostgresClient:
                     symbol,
                     date,
                 )
-                return news
+
+                # Create a list to store the final news records with sources
+                final_news_records = []
+
+                # Fetch sources for each news record and add to final_news_records
+                for record in news_records:
+                    sources = await conn.fetch(
+                        """
+                        SELECT source FROM news_sources
+                        WHERE news_id = $1
+                        """,
+                        record["id"],
+                    )
+                    # Create a new dictionary for each news record with sources added
+                    news_with_sources = {
+                        "id": record["id"],
+                        "content": record["content"],
+                        "timestamp": record["timestamp"],
+                        "sources": [src["source"] for src in sources],
+                    }
+                    final_news_records.append(news_with_sources)
+
+                return final_news_records
+
             except Exception as e:
                 print("Failed to get news by symbol: ", e)
                 return None

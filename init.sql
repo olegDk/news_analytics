@@ -1,8 +1,9 @@
--- DROP TABLE IF EXISTS news_securities;
--- DROP TABLE IF EXISTS securities_summaries;
--- DROP TABLE IF EXISTS sector_summary;
--- DROP TABLE IF EXISTS news;
--- DROP TABLE IF EXISTS securities;
+DROP TABLE IF EXISTS news_securities;
+DROP TABLE IF EXISTS news_sources;
+DROP TABLE IF EXISTS securities_summaries;
+DROP TABLE IF EXISTS sector_summary;
+DROP TABLE IF EXISTS news;
+DROP TABLE IF EXISTS securities;
 
 CREATE TABLE IF NOT EXISTS securities (
     id SERIAL PRIMARY KEY,
@@ -35,4 +36,10 @@ CREATE TABLE IF NOT EXISTS sector_summary (
     summary TEXT,
     date DATE,
     sector VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS news_sources (
+    news_id INT REFERENCES news(id),
+    source VARCHAR(255),
+    PRIMARY KEY (news_id, source)
 );
