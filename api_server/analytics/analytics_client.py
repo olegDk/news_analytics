@@ -1,7 +1,12 @@
 import os
 import json
-from typing import List, Optional
+from typing import List, Optional, Dict
 from analytics.aiclient.openai_client import get_chat_completion
+from analytics.fred_utils import (
+    calculate_yield_metrics,
+    get_effective_ffr_data,
+    get_target_ffr_data,
+)
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Pinecone
 from dotenv import load_dotenv
@@ -48,7 +53,7 @@ def query_to_json(query: str) -> dict:
     return result_json
 
 
-def semantic_search(text: Optional[str] = None) -> str:
+def semantic_search(text: Optional[str] = None) -> Dict:
     # 1. Query most similar documents
     # 2. Parse them into joined text
     # 3. Create prompt
@@ -57,12 +62,19 @@ def semantic_search(text: Optional[str] = None) -> str:
 
     chosen_sections = []
     chosen_sections_len = 0
+    source_ids = set()
 
     docsearch = Pinecone.from_existing_index(
         index_name=INDEX_NAME, embedding=embeddings
     )
 
     docs = docsearch.similarity_search(text)
+
+    for doc in docs:
+        try:
+            source_ids.add(doc.metadata["source_id"])
+        except:
+            continue
 
     for doc in docs:
         # Add contexts until run out of space.
@@ -89,26 +101,60 @@ def semantic_search(text: Optional[str] = None) -> str:
 
     answer = get_chat_completion(messages)
 
-    return answer
+    return {"reply": answer, "source_ids": list(source_ids), "type": "semantic_search"}
+
+
+def yield_metrics(
+    asset_casual: Optional[str] = None,
+    starting: Optional[str] = None,
+    ending: Optional[str] = None,
+):
+    answer = calculate_yield_metrics(asset_casual, starting, ending)
+    return {
+        "reply": answer,
+        "source_ids": ["https://fred.stlouisfed.org/"],
+        "type": "yield_metrics",
+    }
+
+
+def effective_ffr_data():
+    answer = get_effective_ffr_data()
+    return {
+        "reply": answer,
+        "source_ids": ["https://fred.stlouisfed.org/"],
+        "type": "effective_ffr_data",
+    }
+
+
+def target_ffr_data():
+    answer = get_target_ffr_data()
+    return {
+        "reply": answer,
+        "source_ids": ["https://fred.stlouisfed.org/"],
+        "type": "target_ffr_data",
+    }
 
 
 command_to_processor = {
     "/text": semantic_search,
+    "/yield_metrics": yield_metrics,
+    "/effective_ffr_rate": effective_ffr_data,
+    "/target_ffr_rate": target_ffr_data,
 }
 
 
-def process_query(query: str) -> str:
+def process_query(query: str) -> Dict:
     parsed_query = query_to_json(query)
     command = parsed_query["command"]
 
     if command == "/unknown" or command not in command_to_processor.keys():
-        return f"Sorry, I can not respond to this query with expected result for now."
+        return {
+            "reply": {
+                "reply": "Sorry, I can not respond to this query with expected result for now.",
+                "sources": [],
+                "type": "",
+            }
+        }
 
     args = {key: value for key, value in parsed_query.items() if key != "command"}
-
-    try:
-        result = command_to_processor[command](**args)
-        return result
-    except Exception as e:
-        print(e)
-        return f"Sorry, I can not respond to this query with expected result for now."
+    return command_to_processor[command](**args)

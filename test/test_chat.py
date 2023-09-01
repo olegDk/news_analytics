@@ -4,10 +4,10 @@ import websockets
 
 async def test_chat_server():
     client_id = 1
-    # async with websockets.connect(f"ws://localhost:3000/ws/{client_id}") as websocket:
-    async with websockets.connect(
-        f"ws://165.22.191.68:3000/ws/{client_id}"
-    ) as websocket:
+    async with websockets.connect(f"ws://localhost:3000/ws/{client_id}") as websocket:
+        # async with websockets.connect(
+        #     f"ws://165.22.191.68:3000/ws/{client_id}"
+        # ) as websocket:
         test_message_1 = "Hello, Chat Server!"
         await websocket.send(test_message_1)
         response_message = await websocket.recv()
@@ -18,6 +18,18 @@ async def test_chat_server():
         await websocket.send(test_message_1)
         response_message = await websocket.recv()
         print(f"Request: {test_message_1}")
+        print(f"Response: {response_message}")
+
+        test_message_2 = "What is current target FFR rate?"
+        await websocket.send(test_message_2)
+        response_message = await websocket.recv()
+        print(f"Request: {test_message_2}")
+        print(f"Response: {response_message}")
+
+        test_message_3 = "What is current effective FFR rate?"
+        await websocket.send(test_message_3)
+        response_message = await websocket.recv()
+        print(f"Request: {test_message_3}")
         print(f"Response: {response_message}")
 
 

@@ -46,8 +46,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
             query_json = {"query_text": data}
             answer = requests.post(f"{ANALYTICS_SERVER_URL}/query", json=query_json)
             response_data = answer.json()
-            response_text = response_data["response_text"]
-            await manager.send_personal_message(response_text, websocket)
+            await manager.send_personal_message(json.dumps(response_data), websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         print(f"Client #{client_id} disconnected")

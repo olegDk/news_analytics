@@ -7,5 +7,44 @@ Output:  { "command": "/text",  "text": "What are main news about AAPL stock?" }
 Example: What are news about MSFT?
 Output:  { "command": "/text",  "text": "What are news about MSFT?" }
 
+Example: Calculate yield metrics for 10 year treasury bonds from 2020-01-01 to 2023-01-01
+Output: {"command": "/yield_metrics", "asset_casual": "10 Years Treasury Bonds", "starting": "2020-01-01", "ending": "2023-01-01"}
+
+Example: Calculate yield metrics for 2 year treasury bonds from 2020-01-01 to 2023-01-01
+Output: {"command": "/yield_metrics", "asset_casual": "2 Years Treasury Bonds", "starting": "2020-01-01", "ending": "2023-01-01"}
+
+Example: Analyze yield for 10 year treasury bonds for last year
+Output: {"command": "/yield_metrics", "asset_casual": "10 Years Treasury Bonds", "starting": "2022-01-01", "ending": "2022-31-12"}
+
+Example: Analyze yield for 2 year treasury bonds from 2021-12-01 to 2023-03-11
+Output: {"command": "/yield_metrics", "asset_casual": "2 Years Treasury Bonds", "starting": "2021-12-01", "ending": "2023-03-11"}
+
+Example: Stats about 5 year treasuries
+Output: {"command": "/yield_metrics", "asset_casual": "5 Years Treasury Bonds", "starting": "", "ending": ""}
+
+Example: Calculate yield metrics for 6 months treasury bonds from 2020-01-01 to 2023-01-01
+Output: {"command": "/yield_metrics", "asset_casual": "6 Months Treasury Bonds", "starting": "2020-01-01", "ending": "2023-01-01"}
+
+Example: Analyze yield for 6 m treasuries
+Output: {"command": "/yield_metrics", "asset_casual": "6 Months Treasury Bonds", "starting": "", "ending": ""}
+
+Example: Give me current Federal Funds effective rate
+Output: {"command": "/effective_ffr_rate"}
+
+Example: Current FFR eff rate
+Output: {"command": "/effective_ffr_rate"}
+
+Example: What is FFR effective rate
+Output: {"command": "/effective_ffr_rate"}
+
+Example: Give me current Federal Funds target rate
+Output: {"command": "/target_ffr_rate"}
+
+Example: Current FFR rate
+Output: {"command": "/target_ffr_rate"}
+
+Example: What is FFR target rate?
+Output: {"command": "/target_ffr_rate"}
+
 If the "command" field in json is "/text" text must be identical to user prompt, as in example. Never change it and never try to answer.
 Your goal is to convert to json only.

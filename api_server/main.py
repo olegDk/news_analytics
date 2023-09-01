@@ -83,14 +83,30 @@ async def upsert_semantic(
 
 
 @app.post("/query", response_model=QueryResponse)
-def query(
-    request: Query = Body(...),
-):
+async def query(request: Query = Body(...)):
     try:
-        response_text = process_query(request.query_text)
-        return QueryResponse(
-            response_type=ResponseType.text, response_text=response_text
-        )
+        response_data = process_query(request.query_text)
+        print(response_data)
+
+        # Reshape the response_data to fit the model
+        reply_data = {"reply": response_data.get("reply"), "sources": []}
+
+        if response_data.get("type", "") == "semantic_search":
+            source_ids_int = [int(sid) for sid in response_data["source_ids"]]
+            news_details = await pg_client.get_news_details_by_source_ids(
+                source_ids_int
+            )
+            reply_data["sources"] = news_details
+            reply_data["type"] = response_data["type"]
+        else:
+            # Just ensure that 'sources' is an empty list if not semantic_search
+            reply_data["sources"] = response_data["source_ids"]
+            reply_data["type"] = response_data["type"]
+
+        # Wrap the reshaped reply data in another dictionary for the QueryResponse model
+        reshaped_response = {"reply": reply_data}
+
+        return reshaped_response
     except Exception as e:
         print("Error:", e)
         raise HTTPException(status_code=500, detail="Internal Service Error")

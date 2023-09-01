@@ -5,7 +5,7 @@ from models.models import (
     QuerySemanticResult,
 )
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Union
 from enum import Enum
 from datetime import date, datetime
 
@@ -27,9 +27,20 @@ class Query(BaseModel):
     query_text: str
 
 
+class SourceDetail(BaseModel):
+    content: str
+    sources: List[str]
+    timestamp: str
+
+
+class Reply(BaseModel):
+    reply: str
+    sources: List[Union[SourceDetail, str]]
+    type: str
+
+
 class QueryResponse(BaseModel):
-    response_type: ResponseType
-    response_text: str
+    reply: Reply
 
 
 class QuerySemanticRequest(BaseModel):
