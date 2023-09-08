@@ -107,12 +107,13 @@ def semantic_search(
         header = (
             f"Answer the question as truthfully as possible using the provided context, "
             + f"you are the author of the context, speak from yourself, "
-            + f"provide responses as if you were the author of the original context, "
-            + f"always refer to yourself and never to the author, and if the answer is not contained within the text below, say "
-            + f"Content that I have access to doesn't contain the exact answer.\n\nContext:\n"
+            + f"provide responses as if you were the author of the original context. "
+            + f"If context is not empty - you must provide an answer from that context, you cannot say that you don't know. "
+            + f"Always refer to yourself and never to the author.\n\nContext:\n"
         )
 
         prompt = header + "".join(chosen_sections) + "\n\n Q: " + text + "\n A:"
+        logging.info(f"Prompt: {prompt}")
         messages = [{"role": "user", "content": prompt}]
 
         answer = get_chat_completion(messages)
