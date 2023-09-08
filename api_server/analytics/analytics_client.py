@@ -185,24 +185,17 @@ def get_pinecone_filter(
     if filter is None:
         return {}
 
-    pinecone_filter = {}
+    pinecone_filter = []
 
-    # For each field in the MetadataFilter, check if it has a value and add the corresponding pinecone filter expression
-    # For start_date and end_date, uses the $gte and $lte operators respectively
-    # For other fields, uses the $eq operator
-    for field, value in filter.dict().items():
-        if value is not None:
-            if field == "start_date":
-                pinecone_filter["date"] = pinecone_filter.get("date", {})
-                pinecone_filter["date"]["$gte"] = to_unix_timestamp(value)
-            elif field == "end_date":
-                pinecone_filter["date"] = pinecone_filter.get("date", {})
-                pinecone_filter["date"]["$lte"] = to_unix_timestamp(value)
-            elif field == "assets":
-                pinecone_filter["assets"] = {"$in": value}
-            elif field == "dates":
-                pinecone_filter["dates"] = {"$in": value}
-            else:
-                pinecone_filter[field] = value
+    # Check if assets are provided and add the corresponding pinecone filter expression
+    if filter.assets:
+        # Create an $or condition for each asset
+        assets_conditions = [{"assets": asset} for asset in filter.assets]
+        pinecone_filter.append({"$or": assets_conditions})
 
-    return pinecone_filter
+    # Check if dates are provided and add the corresponding pinecone filter expression
+    if filter.dates:
+        pinecone_filter.append({"date": {"$in": filter.dates}})
+
+    # Combine all conditions using $and
+    return {"$and": pinecone_filter}

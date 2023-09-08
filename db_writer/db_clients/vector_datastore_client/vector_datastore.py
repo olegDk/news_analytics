@@ -64,7 +64,7 @@ class VectorDataStore(ABC):
                         text=chunk,
                         metadata={
                             "source_id": source,
-                            "securities": securities_list,
+                            "assets": securities_list,
                             "date": timestamp_date.strftime("%Y-%m-%d"),
                         },
                     )
@@ -102,6 +102,7 @@ class VectorDataStore(ABC):
         )
 
         chunks = get_document_chunks(documents, chunk_token_size)
+        logging.info(f"Chunks to upsert: {chunks}")
 
         return await self._upsert(chunks)
 

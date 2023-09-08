@@ -39,7 +39,7 @@ async def test_chat_server():
         print(f"Response: {response_message}")
 
         test_message_5 = (
-            "What were news about GOOGL and NVDA on 2023-01-02 and on 2023-02-03?"
+            "What were news about GOOGL and NVDA on 2023-09-08 and on 2023-02-03?"
         )
         await websocket.send(test_message_5)
         response_message = await websocket.recv()

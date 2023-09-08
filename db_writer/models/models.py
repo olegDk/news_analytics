@@ -20,6 +20,8 @@ class DocumentMetadata(BaseModel):
     url: Optional[str] = None
     created_at: Optional[str] = None
     author: Optional[str] = None
+    assets: Optional[List[str]] = None
+    date: Optional[str] = None
 
 
 class DocumentChunkMetadata(DocumentMetadata):
