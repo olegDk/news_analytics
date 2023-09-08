@@ -1,6 +1,7 @@
 import os
 import asyncpg
 import time
+from typing import List
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 
@@ -293,6 +294,42 @@ class PostgresClient:
             except Exception as e:
                 print("Failed to get news by symbol: ", e)
                 return None
+
+    async def get_news_details_by_source_ids(self, source_ids: List[int]):
+        async with self.db_pool.acquire() as conn:
+            # Fetch news content and timestamp for the provided news_ids (source_ids)
+            news_records = await conn.fetch(
+                """
+                SELECT id, content, timestamp FROM news
+                WHERE id = ANY($1)
+                """,
+                source_ids,
+            )
+
+            # Create a list to store the final news records with their sources
+            final_news_records = []
+
+            for record in news_records:
+                # Fetch sources for each news record
+                sources = await conn.fetch(
+                    """
+                    SELECT source FROM news_sources
+                    WHERE news_id = $1
+                    """,
+                    record["id"],
+                )
+
+                news_details = {
+                    "content": record["content"],
+                    "sources": [src["source"] for src in sources],
+                    "timestamp": record[
+                        "timestamp"
+                    ].isoformat(),  # Convert datetime to ISO string format
+                }
+
+                final_news_records.append(news_details)
+
+            return final_news_records
 
     async def close(self):
         await self.db_pool.close()

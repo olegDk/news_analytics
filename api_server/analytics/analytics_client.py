@@ -1,6 +1,6 @@
 import os
 import json
-from typing import List, Optional, Dict
+from typing import Optional, Dict, Any
 from analytics.aiclient.openai_client import get_chat_completion
 from analytics.fred_utils import (
     calculate_yield_metrics,
@@ -9,8 +9,15 @@ from analytics.fred_utils import (
 )
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Pinecone
+from models.models import DocumentMetadataFilter
+from analytics.date import to_unix_timestamp
 from dotenv import load_dotenv
 import tiktoken
+import logging
+
+
+LOG_FILENAME = "analytics_client.log"
+logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
 
 
 load_dotenv()
@@ -53,7 +60,11 @@ def query_to_json(query: str) -> dict:
     return result_json
 
 
-def semantic_search(text: Optional[str] = None) -> Dict:
+def semantic_search(
+    text: Optional[str] = None,
+    assets: Optional[list] = None,
+    dates: Optional[str] = None,
+) -> Dict:
     # 1. Query most similar documents
     # 2. Parse them into joined text
     # 3. Create prompt
@@ -67,39 +78,47 @@ def semantic_search(text: Optional[str] = None) -> Dict:
     docsearch = Pinecone.from_existing_index(
         index_name=INDEX_NAME, embedding=embeddings
     )
+    try:
+        metadata_filter = DocumentMetadataFilter(assets=assets, dates=dates)
+        pinecone_filter = get_pinecone_filter(filter=metadata_filter)
+        logging.info(f"Created filter: {pinecone_filter}")
 
-    docs = docsearch.similarity_search(text)
+        docs = docsearch.similarity_search(text, filter=pinecone_filter)
+        logging.info(f"Docs: {docs}")
 
-    for doc in docs:
-        try:
-            source_ids.add(doc.metadata["source_id"])
-        except:
-            continue
+        for doc in docs:
+            try:
+                source_ids.add(doc.metadata["source_id"])
+            except:
+                continue
 
-    for doc in docs:
-        # Add contexts until run out of space.
-        try:
-            doc_content = doc.page_content
-            chosen_sections_len += len(encoding.encode(doc_content)) + separator_len
-            chosen_sections.append(SEPARATOR + doc_content)
+        for doc in docs:
+            # Add contexts until run out of space.
+            try:
+                doc_content = doc.page_content
+                chosen_sections_len += len(encoding.encode(doc_content)) + separator_len
+                chosen_sections.append(SEPARATOR + doc_content)
 
-            if chosen_sections_len > MAX_SECTION_LEN:
-                break
-        except:
-            continue
+                if chosen_sections_len > MAX_SECTION_LEN:
+                    break
+            except:
+                continue
 
-    header = (
-        f"Answer the question as truthfully as possible using the provided context, "
-        + f"you are the author of the context, speak from yourself, "
-        + f"provide responses as if you were the author of the original context, "
-        + f"always refer to yourself and never to the author, and if the answer is not contained within the text below, say "
-        + f"Content that I have access to doesn't contain the exact answer.\n\nContext:\n"
-    )
+        header = (
+            f"Answer the question as truthfully as possible using the provided context, "
+            + f"you are the author of the context, speak from yourself, "
+            + f"provide responses as if you were the author of the original context, "
+            + f"always refer to yourself and never to the author, and if the answer is not contained within the text below, say "
+            + f"Content that I have access to doesn't contain the exact answer.\n\nContext:\n"
+        )
 
-    prompt = header + "".join(chosen_sections) + "\n\n Q: " + text + "\n A:"
-    messages = [{"role": "user", "content": prompt}]
+        prompt = header + "".join(chosen_sections) + "\n\n Q: " + text + "\n A:"
+        messages = [{"role": "user", "content": prompt}]
 
-    answer = get_chat_completion(messages)
+        answer = get_chat_completion(messages)
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        raise
 
     return {"reply": answer, "source_ids": list(source_ids), "type": "semantic_search"}
 
@@ -158,3 +177,32 @@ def process_query(query: str) -> Dict:
 
     args = {key: value for key, value in parsed_query.items() if key != "command"}
     return command_to_processor[command](**args)
+
+
+def get_pinecone_filter(
+    filter: Optional[DocumentMetadataFilter] = None,
+) -> Dict[str, Any]:
+    if filter is None:
+        return {}
+
+    pinecone_filter = {}
+
+    # For each field in the MetadataFilter, check if it has a value and add the corresponding pinecone filter expression
+    # For start_date and end_date, uses the $gte and $lte operators respectively
+    # For other fields, uses the $eq operator
+    for field, value in filter.dict().items():
+        if value is not None:
+            if field == "start_date":
+                pinecone_filter["date"] = pinecone_filter.get("date", {})
+                pinecone_filter["date"]["$gte"] = to_unix_timestamp(value)
+            elif field == "end_date":
+                pinecone_filter["date"] = pinecone_filter.get("date", {})
+                pinecone_filter["date"]["$lte"] = to_unix_timestamp(value)
+            elif field == "assets":
+                pinecone_filter["assets"] = {"$in": value}
+            elif field == "dates":
+                pinecone_filter["dates"] = {"$in": value}
+            else:
+                pinecone_filter[field] = value
+
+    return pinecone_filter

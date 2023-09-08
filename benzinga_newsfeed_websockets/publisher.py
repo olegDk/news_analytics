@@ -11,6 +11,10 @@ from news_pb2 import (
     Content,
     Security,
 )  # news_pb2 is the generated module from news.proto
+import logging
+
+LOG_FILENAME = "publisher.log"
+logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
 
 load_dotenv()
 
@@ -27,7 +31,7 @@ async def run():
     while not connected:
         try:
             async with websockets.connect(
-                "ws://news_simulator:5678",
+                "ws://news_simulator_benzinga:5678",
                 max_size=10_000_000_000,
             ) as websocket:
                 print("Connected to WebSocket server")
@@ -69,6 +73,8 @@ async def run():
                             sources=["Benzinga"],  # Add this line
                         )
                         await nc.publish("news", news.SerializeToString())
+                        logging.info(f"Published message to NATS: {news}")
+
                 except Exception as e:
                     print(f"Exception in WebSocket for loop: {e}")
                     raise e
@@ -86,6 +92,8 @@ async def run():
 if __name__ == "__main__":
     try:
         print("Starting run function.")
+        print("Waiting for nats to start")
+        time.sleep(15)
         asyncio.run(run())
     except Exception as e:
         print(f"Exception in run: {e}")

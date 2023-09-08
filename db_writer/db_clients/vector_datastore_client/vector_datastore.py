@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
+from datetime import datetime
 import asyncio
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import tiktoken
@@ -14,10 +15,17 @@ from models.models import (
 )
 from analytics.chunks import get_document_chunks
 from analytics.aiclient.openai_client import get_embeddings
+import logging
+from datetime import datetime
+
+
+LOG_FILENAME = "vector_datastore.log"
+logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
 
 
 class VectorDataStore(ABC):
-    async def insert_news(self, news_id: str, document: str) -> List[str]:
+    async def insert_news(self, news_id, data) -> List[str]:
+        logging.info(f"Received data for upserting...")
         tokenizer = tiktoken.get_encoding("cl100k_base")
 
         # create the length function
@@ -32,18 +40,44 @@ class VectorDataStore(ABC):
             separators=["\n\n", "\n", " ", ""],
         )
 
-        m = hashlib.md5()
-        source = news_id
-        m.update(source.encode("utf-8"))
-        uid = m.hexdigest()[:12]
-        chunks = text_splitter.split_text(document)
-        documents = []
-        for i, chunk in enumerate(chunks):
-            documents.append(
-                Document(id=f"{uid}-{i}", text=chunk, metadata={"source_id": source})
-            )
+        # Extract securities and timestamp from the data
+        try:
+            logging.info(f"Securities list: {data.content.securities}")
+            securities_list = [security.symbol for security in data.content.securities]
+            timestamp_date = datetime.fromisoformat(
+                data.timestamp.replace("Z", "+00:00")
+            ).date()
+            logging.info(f"Date: {timestamp_date}")
 
-        return await self.upsert(documents)
+            m = hashlib.md5()
+            source = news_id  # Assuming the news ID is named 'id' in the News object
+            m.update(source.encode("utf-8"))
+            uid = m.hexdigest()[:12]
+            chunks = text_splitter.split_text(
+                f"{data.content.title} - {data.content.body}"
+            )
+            documents = []
+            for i, chunk in enumerate(chunks):
+                documents.append(
+                    Document(
+                        id=f"{uid}-{i}",
+                        text=chunk,
+                        metadata={
+                            "source_id": source,
+                            "securities": securities_list,
+                            "date": timestamp_date.strftime("%Y-%m-%d"),
+                        },
+                    )
+                )
+
+            document_ids = await self.upsert(documents)
+            logging.info(f"Upserted documents: {documents}")
+
+        except Exception as e:
+            logging.error(f"An error occurred: {e}")
+            raise
+
+        return document_ids
 
     async def upsert(
         self, documents: List[Document], chunk_token_size: Optional[int] = None

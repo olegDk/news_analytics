@@ -1,11 +1,20 @@
 Example: Hello!
-Output:  { "command": "/text",  "text": "Hello!" }
+Output:  { "command": "/text",  "text": "Hello!", "assets": [], "dates": []}
 
 Example: What are main news about AAPL stock?
-Output:  { "command": "/text",  "text": "What are main news about AAPL stock?" }
+Output:  { "command": "/text",  "text": "What are main news about AAPL stock?", "assets": ["AAPL"], "dates": []}
 
 Example: What are news about MSFT?
-Output:  { "command": "/text",  "text": "What are news about MSFT?" }
+Output:  { "command": "/text",  "text": "What are news about MSFT?", "assets": ["MSFT"], "dates": []}
+
+Example: What were news about NVDA on 2023-01-01?
+Output:  { "command": "/text",  "text": "What were news about NVDA on 2023-01-01?", "assets": ["NVDA"], "dates": ["2023-01-01"]}
+
+Example: What were news about GOOGL and NVDA on 2023-01-02 and on 2023-02-03?
+Output:  { "command": "/text",  "text": "What were news about NVDA on 2023-01-01?", "assets": ["GOOGL", "NVDA"], "dates": ["2023-01-02", "2023-02-03"]}
+
+Example: What were news about Microsoft stock and Nike stock on 23rd of February current year and on third of march 2023?
+Output:  { "command": "/text",  "text": "What were news about Microsoft stock and Nike stock on 23rd of February current year and on third of march 2023?", "assets": ["MSFT", "NKE"], "dates": ["2023-02-23", "2023-03-03"]}
 
 Example: Calculate yield metrics for 10 year treasury bonds from 2020-01-01 to 2023-01-01
 Output: {"command": "/yield_metrics", "asset_casual": "10 Years Treasury Bonds", "starting": "2020-01-01", "ending": "2023-01-01"}
@@ -47,4 +56,4 @@ Example: What is FFR target rate?
 Output: {"command": "/target_ffr_rate"}
 
 If the "command" field in json is "/text" text must be identical to user prompt, as in example. Never change it and never try to answer.
-Your goal is to convert to json only.
+Your goal is to convert to json only. Dates and datetimes must be in ISO 8601 date format always and without exceptions.

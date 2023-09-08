@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+message Security {
+  string symbol = 1;
+  string exchange = 2;
+}
+
+message Content {
+  string title = 1;
+  string body = 2;
+  repeated Security securities = 3;
+}
+
+message News {
+  Content content = 1;
+  string timestamp = 2;
+  repeated string sources = 3;
+}

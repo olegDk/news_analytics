@@ -54,6 +54,8 @@ class DocumentMetadataFilter(BaseModel):
     author: Optional[str] = None
     start_date: Optional[str] = None  # any date string format
     end_date: Optional[str] = None  # any date string format
+    assets: Optional[List[str]] = None
+    dates: Optional[List[str]] = None
 
 
 class QuerySemantic(BaseModel):

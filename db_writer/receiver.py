@@ -3,6 +3,11 @@ from nats.aio.client import Client as NATS
 from news_pb2 import News  # news_pb2 is the generated module from news.proto
 from db_clients.postgres_client.postgres_client import PostgresClient
 from db_clients.vector_datastore_client.pinecone_datastore import PineconeDataStore
+import logging
+
+
+LOG_FILENAME = "receiver.log"
+logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
 
 
 async def run(loop):
@@ -11,6 +16,7 @@ async def run(loop):
     # Connect to the NATS server
     # await nc.connect("localhost:4222", loop=loop)
     await nc.connect("nats:4222", loop=loop)
+    logging.info(f"Connected to nats")
 
     # Create a connection to your databases
     db_client = PostgresClient()
@@ -22,14 +28,13 @@ async def run(loop):
         subject = msg.subject
         data = News()
         data.ParseFromString(msg.data)
+        logging.info(f"Received a message: {data}")
         # print(f"Received a message on '{subject}':\n{data}")
 
         # Insert the data into your database
         try:
             news_id = await db_client.insert_news(data)
-            _ = await pinecone_client.insert_news(
-                str(news_id), f"{data.content.title} - {data.content.body}"
-            )
+            _ = await pinecone_client.insert_news(str(news_id), data)
         except Exception as e:
             print(e)
             print("Failed to insert news")

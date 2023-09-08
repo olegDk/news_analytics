@@ -15,11 +15,17 @@ services:
     image: nats:latest
     ports:
       - "4222:4222"
-  news_simulator:
+      - "8222:8222"
+  # news_simulator_benzinga:
+  #   build:
+  #     context: ./news_simulator_benzinga
+  #   volumes:
+  #     - ./news_simulator_benzinga:/app
+  news_simulator_finhub:
     build:
-      context: ./news_simulator
+      context: ./news_simulator_finhub
     volumes:
-      - ./news_simulator:/app
+      - ./news_simulator_finhub:/app
   db_writer:
     build:
       context: ./db_writer
@@ -64,14 +70,23 @@ services:
       - ./chat:/app
     ports:
       - "3000:3000"
-  benzinga_newsfeed_websockets:
+  # benzinga_newsfeed_websockets:
+  #   build:
+  #     context: ./benzinga_newsfeed_websockets
+  #   env_file: .env
+  #   depends_on:
+  #     - nats
+  #     - news_simulator_benzinga
+  #   volumes:
+  #     - ./benzinga_newsfeed_websockets:/app
+  finhub_newsfeed_websockets:
     build:
-      context: ./benzinga_newsfeed_websockets
+      context: ./finhub_newsfeed_websockets
     env_file: .env
     depends_on:
       - nats
-      - news_simulator
+      - news_simulator_finhub
     volumes:
-      - ./benzinga_newsfeed_websockets:/app
+      - ./finhub_newsfeed_websockets:/app
 # volumes:
 #   postgres_data:

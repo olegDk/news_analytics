@@ -1,0 +1,66 @@
+[
+  {
+    "type": "news",
+    "data": [
+      {
+        "category": "company",
+        "datetime": 1679920200,
+        "headline": "NVDA releases new GPU",
+        "id": 1,
+        "image": "https://example.com/nvda1.jpg",
+        "related": "NVDA",
+        "source": "TechCrunch",
+        "summary": "NVDA has released a groundbreaking new GPU that promises to revolutionize gaming.",
+        "url": "https://techcrunch.com/nvda-new-gpu"
+      }
+    ]
+  },
+  {
+    "type": "news",
+    "data": [
+      {
+        "category": "company",
+        "datetime": 1679921200,
+        "headline": "AAPL unveils new iPhone",
+        "id": 2,
+        "image": "https://example.com/aapl1.jpg",
+        "related": "AAPL",
+        "source": "The Verge",
+        "summary": "AAPL has unveiled its latest iPhone model with impressive new features.",
+        "url": "https://theverge.com/aapl-new-iphone"
+      }
+    ]
+  },
+  {
+    "type": "news",
+    "data": [
+      {
+        "category": "company",
+        "datetime": 1679922200,
+        "headline": "GOOGL's new search algorithm",
+        "id": 3,
+        "image": "https://example.com/googl1.jpg",
+        "related": "GOOGL",
+        "source": "Wired",
+        "summary": "GOOGL introduces a new search algorithm that provides even more relevant results.",
+        "url": "https://wired.com/googl-search-algorithm"
+      }
+    ]
+  },
+  {
+    "type": "news",
+    "data": [
+      {
+        "category": "company",
+        "datetime": 1679923200,
+        "headline": "MSFT's Windows 12 announcement",
+        "id": 4,
+        "image": "https://example.com/msft1.jpg",
+        "related": "MSFT",
+        "source": "CNET",
+        "summary": "MSFT announces Windows 12, the next generation of its operating system.",
+        "url": "https://cnet.com/msft-windows-12"
+      }
+    ]
+  }
+]
