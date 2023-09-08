@@ -60,6 +60,70 @@ def query_to_json(query: str) -> dict:
     return result_json
 
 
+# def semantic_search(
+#     text: Optional[str] = None,
+#     assets: Optional[list] = None,
+#     dates: Optional[str] = None,
+# ) -> Dict:
+#     # 1. Query most similar documents
+#     # 2. Parse them into joined text
+#     # 3. Create prompt
+#     # 4. ChatGPT completion
+#     # 5. Return result.
+
+#     chosen_sections = []
+#     chosen_sections_len = 0
+#     source_ids = set()
+
+#     docsearch = Pinecone.from_existing_index(
+#         index_name=INDEX_NAME, embedding=embeddings
+#     )
+#     try:
+#         metadata_filter = DocumentMetadataFilter(assets=assets, dates=dates)
+#         pinecone_filter = get_pinecone_filter(filter=metadata_filter)
+#         logging.info(f"Created filter: {pinecone_filter}")
+
+#         docs = docsearch.similarity_search(text, filter=pinecone_filter)
+#         logging.info(f"Docs: {docs}")
+
+#         for doc in docs:
+#             try:
+#                 source_ids.add(doc.metadata["source_id"])
+#             except:
+#                 continue
+
+#         for doc in docs:
+#             # Add contexts until run out of space.
+#             try:
+#                 doc_content = doc.page_content
+#                 chosen_sections_len += len(encoding.encode(doc_content)) + separator_len
+#                 chosen_sections.append(SEPARATOR + doc_content)
+
+#                 if chosen_sections_len > MAX_SECTION_LEN:
+#                     break
+#             except:
+#                 continue
+
+#         header = (
+#             f"Answer the question as truthfully as possible using the provided context, "
+#             + f"you are the author of the context, speak from yourself, "
+#             + f"provide responses as if you were the author of the original context. "
+#             + f"If context is not empty - you must provide an answer from that context, you cannot say that you don't know. "
+#             + f"Always refer to yourself and never to the author.\n\nContext:\n"
+#         )
+
+#         prompt = header + "".join(chosen_sections) + "\n\n Q: " + text + "\n A:"
+#         logging.info(f"Prompt: {prompt}")
+#         messages = [{"role": "user", "content": prompt}]
+
+#         answer = get_chat_completion(messages)
+#     except Exception as e:
+#         logging.error(f"An error occurred: {e}")
+#         raise
+
+#     return {"reply": answer, "source_ids": list(source_ids), "type": "semantic_search"}
+
+
 def semantic_search(
     text: Optional[str] = None,
     assets: Optional[list] = None,
@@ -78,48 +142,58 @@ def semantic_search(
     docsearch = Pinecone.from_existing_index(
         index_name=INDEX_NAME, embedding=embeddings
     )
-    try:
-        metadata_filter = DocumentMetadataFilter(assets=assets, dates=dates)
-        pinecone_filter = get_pinecone_filter(filter=metadata_filter)
-        logging.info(f"Created filter: {pinecone_filter}")
 
-        docs = docsearch.similarity_search(text, filter=pinecone_filter)
-        logging.info(f"Docs: {docs}")
+    all_docs = []
 
-        for doc in docs:
-            try:
-                source_ids.add(doc.metadata["source_id"])
-            except:
-                continue
+    # Perform separate queries for each asset and then combine the results
+    for asset in assets:
+        try:
+            metadata_filter = DocumentMetadataFilter(assets=[asset], dates=dates)
+            pinecone_filter = get_pinecone_filter(filter=metadata_filter)
+            logging.info(f"Created filter for asset {asset}: {pinecone_filter}")
 
-        for doc in docs:
-            # Add contexts until run out of space.
-            try:
-                doc_content = doc.page_content
-                chosen_sections_len += len(encoding.encode(doc_content)) + separator_len
-                chosen_sections.append(SEPARATOR + doc_content)
+            docs = docsearch.similarity_search(text, filter=pinecone_filter)
+            logging.info(f"Docs for asset {asset}: {docs}")
 
-                if chosen_sections_len > MAX_SECTION_LEN:
-                    break
-            except:
-                continue
+            all_docs.extend(docs)
 
-        header = (
-            f"Answer the question as truthfully as possible using the provided context, "
-            + f"you are the author of the context, speak from yourself, "
-            + f"provide responses as if you were the author of the original context. "
-            + f"If context is not empty - you must provide an answer from that context, you cannot say that you don't know. "
-            + f"Always refer to yourself and never to the author.\n\nContext:\n"
-        )
+        except Exception as e:
+            logging.error(
+                f"An error occurred while fetching docs for asset {asset}: {e}"
+            )
+            continue
 
-        prompt = header + "".join(chosen_sections) + "\n\n Q: " + text + "\n A:"
-        logging.info(f"Prompt: {prompt}")
-        messages = [{"role": "user", "content": prompt}]
+    for doc in all_docs:
+        try:
+            source_ids.add(doc.metadata["source_id"])
+        except:
+            continue
 
-        answer = get_chat_completion(messages)
-    except Exception as e:
-        logging.error(f"An error occurred: {e}")
-        raise
+    for doc in all_docs:
+        # Add contexts until run out of space.
+        try:
+            doc_content = doc.page_content
+            chosen_sections_len += len(encoding.encode(doc_content)) + separator_len
+            chosen_sections.append(SEPARATOR + doc_content)
+
+            if chosen_sections_len > MAX_SECTION_LEN:
+                break
+        except:
+            continue
+
+    header = (
+        f"Answer the question as truthfully as possible using the provided context, "
+        + f"you are the author of the context, speak from yourself, "
+        + f"provide responses as if you were the author of the original context. "
+        + f"If context is not empty - you must provide an answer from that context, you cannot say that you don't know. "
+        + f"Always refer to yourself and never to the author.\n\nContext:\n"
+    )
+
+    prompt = header + "".join(chosen_sections) + "\n\n Q: " + text + "\n A:"
+    logging.info(f"Prompt: {prompt}")
+    messages = [{"role": "user", "content": prompt}]
+
+    answer = get_chat_completion(messages)
 
     return {"reply": answer, "source_ids": list(source_ids), "type": "semantic_search"}
 
