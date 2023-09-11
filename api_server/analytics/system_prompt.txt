@@ -55,5 +55,64 @@ Output: {"command": "/target_ffr_rate"}
 Example: What is FFR target rate?
 Output: {"command": "/target_ffr_rate"}
 
+Example: Inflation for current year
+Output: {"command": "/cpi", "starting": "2023-01-01", "ending": "2023-09-10"}
+
+Example: CPI for last 5 months
+Output: {"command": "/cpi", "starting": "2023-04-10", "ending": "2023-09-10"}
+
+Example: Inflation from 10th of May 2021 till 10 march 23
+Output: {"command": "/cpi", "starting": "2021-05-10", "ending": "2023-03-10"}
+
+Example: What is cpi?
+Output: {"command": "/cpi", "starting": "", "ending": ""}
+
+Example: What is inflation?
+Output: {"command": "/cpi", "starting": "", "ending": ""}
+
+Example: GDP for current year
+Output: {"command": "/gdp", "starting": "2023-01-01", "ending": "2023-09-10"}
+
+Example: GDP for last 5 months
+Output: {"command": "/gdp", "starting": "2023-04-10", "ending": "2023-09-10"}
+
+Example: Gross domestic product from 10th of May 2021 till 10 march 23
+Output: {"command": "/gdp", "starting": "2021-05-10", "ending": "2023-03-10"}
+
+Example: What is gdp?
+Output: {"command": "/gdp", "starting": "", "ending": ""}
+
+Example: unemployment rate for current year
+Output: {"command": "/unemployment_rate", "starting": "2023-01-01", "ending": "2023-09-10"}
+
+Example: Employment situation for last 5 months
+Output: {"command": "/unemployment_rate", "starting": "2023-04-10", "ending": "2023-09-10"}
+
+Example: Unemployment rate from 10th of May 2021 till 10 march 23
+Output: {"command": "/unemployment_rate", "starting": "2021-05-10", "ending": "2023-03-10"}
+
+Example: What is unemployment rate?
+Output: {"command": "/unemployment_rate", "starting": "", "ending": ""}
+
+Example: Unemployment rate stats?
+Output: {"command": "/unemployment_rate", "starting": "", "ending": ""}
+
+Example: Nonfarm payrolls rate for current year
+Output: {"command": "/payrolls", "starting": "2023-01-01", "ending": "2023-09-10"}
+
+Example: Number of new jobs for last 5 months? 
+Output: {"command": "/payrolls", "starting": "2023-04-10", "ending": "2023-09-10"}
+
+Example: Payrolls from 10th of May 2021 till 10 march 23
+Output: {"command": "/payrolls", "starting": "2021-05-10", "ending": "2023-03-10"}
+
+Example: What is payrolls?
+Output: {"command": "/payrolls", "starting": "", "ending": ""}
+
+Example: Payrolls stat?
+Output: {"command": "/payrolls", "starting": "", "ending": ""}
+
 If the "command" field in json is "/text" text must be identical to user prompt, as in example. Never change it and never try to answer.
-Your goal is to convert to json only. Dates and datetimes must be in ISO 8601 date format always and without exceptions.
+Your goal is to convert to json only. Dates and datetimes must be in ISO 8601 date format always and without exceptions. 
+When there is question for something in current year - "starting" must be first of January of current year and "ending" must be todays date.
+When there is question about some metric for last period, say last 5 months - "ending" is todays date and "starting" is todays date minus respective number of days, months, etc., say 5 months.

@@ -3,8 +3,30 @@ import pandas as pd
 from fredapi import Fred
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
+import arrow
+
 
 load_dotenv()
+
+
+def convert_date_format(date_str: str) -> str:
+    # Parse the date from ISO 8601 format
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+
+    # Convert to the desired format
+    converted_date_str = date_obj.strftime("%-m/%-d/%Y")
+
+    return converted_date_str
+
+
+def convert_date_format_with_arrow(date_str: str) -> str:
+    # Parse the date using arrow
+    date_obj = arrow.get(date_str)
+
+    # Convert to the desired format
+    converted_date_str = date_obj.format("M/D/YYYY")
+
+    return converted_date_str
 
 
 # Replace 'your_api_key_here' with your FRED API key
@@ -59,14 +81,12 @@ def get_effective_ffr_data():
     series_id = "FEDFUNDS"
     data = fred.get_series_latest_release(series_id)
 
-    output = (
-        f"Current rate as of {data.index[-1].strftime('%Y-%m-%d')}: {data[-1]:.2f}\n\n"
-    )
+    output = f"Current rate as of {data.index[-1].strftime('%Y-%m-%d')}: {data[-1]:.2f} %\n\n"
 
     output += "Previous five data points:\n"
 
     for i in range(2, 7):
-        output += f"{data.index[-i].strftime('%Y-%m-%d')}: {data[-i]:.2f}\n"
+        output += f"{data.index[-i].strftime('%Y-%m-%d')}: {data[-i]:.2f} %\n"
 
     return output
 
@@ -78,10 +98,86 @@ def get_target_ffr_data():
     upper_data = fred.get_series_latest_release(upper_limit_series_id)
 
     # Build the output string
-    output = f"Current target rate range as of {lower_data.index[-1].strftime('%Y-%m-%d')}: {lower_data[-1]:.2f} - {upper_data[-1]:.2f}\n\n"
+    output = f"Current target rate range as of {lower_data.index[-1].strftime('%Y-%m-%d')}: {lower_data[-1]:.2f} - {upper_data[-1]:.2f} %\n\n"
     output += "Previous five data points:\n"
 
     for i in range(2, 7):
-        output += f"{lower_data.index[-i].strftime('%Y-%m-%d')}: {lower_data[-i]:.2f} - {upper_data[-i]:.2f}\n"
+        output += f"{lower_data.index[-i].strftime('%Y-%m-%d')}: {lower_data[-i]:.2f} - {upper_data[-i]:.2f} %\n"
+
+    return output
+
+
+def get_cpi(starting: str, ending: str):
+    series_id = "CPIAUCNS"
+    data = fred.get_series_latest_release(series_id)
+
+    if starting:
+        starting = convert_date_format(starting)
+    if ending:
+        ending = convert_date_format(ending)
+
+    output = f"Current cpi rate as of {data.index[-1].strftime('%Y-%m-%d')}: {float(data[-1] / 100):.2f} %\n\n"
+
+    output += "Previous five data points:\n"
+
+    for i in range(2, 7):
+        output += f"{data.index[-i].strftime('%Y-%m-%d')}: {data[-i]:.2f} %\n"
+
+    return output
+
+
+def get_unemployment_rate(starting: str, ending: str):
+    series_id = "UNRATE"
+    data = fred.get_series_latest_release(series_id)
+
+    if starting:
+        starting = convert_date_format(starting)
+    if ending:
+        ending = convert_date_format(ending)
+
+    output = f"Current unemployment rate as of {data.index[-1].strftime('%Y-%m-%d')}: {data[-1]:.2f} %\n\n"
+
+    output += "Previous five data points:\n"
+
+    for i in range(2, 7):
+        output += f"{data.index[-i].strftime('%Y-%m-%d')}: {data[-i]:.2f} %\n"
+
+    return output
+
+
+def get_gdp(starting: str, ending: str):
+    series_id = "GDP"
+    data = fred.get_series_latest_release(series_id)
+
+    if starting:
+        starting = convert_date_format(starting)
+    if ending:
+        ending = convert_date_format(ending)
+
+    output = f"Current gross domestic product as of {data.index[-1].strftime('%Y-%m-%d')}: {data[-1]:.2f} bln $\n\n"
+
+    output += "Previous five data points:\n"
+
+    for i in range(2, 7):
+        output += f"{data.index[-i].strftime('%Y-%m-%d')}: {data[-i]:.2f} bln $\n"
+
+    return output
+
+
+def get_payrolls(starting: str, ending: str):
+    series_id = "PAYEMS"
+    data = fred.get_series_latest_release(series_id)
+
+    if starting:
+        starting = convert_date_format(starting)
+    if ending:
+        ending = convert_date_format(ending)
+
+    output = f"Current payrolls as of {data.index[-1].strftime('%Y-%m-%d')}: {data[-1]:.2f} new employees over last month\n\n"
+
+    output += "Previous five data points:\n"
+
+    for i in range(2, 7):
+        output += f"{data.index[-i].strftime('%Y-%m-%d')}: {data[-i]:.2f} new employees over last month\n"
 
     return output

@@ -8,11 +8,11 @@ async def test_chat_server():
         # async with websockets.connect(
         #     f"ws://165.22.191.68:3000/ws/{client_id}"
         # ) as websocket:
-        test_message = "Hello, Chat Server!"
-        await websocket.send(test_message)
-        response_message = await websocket.recv()
-        print(f"Request: {test_message}")
-        print(f"Response: {response_message}")
+        # test_message = "Hello, Chat Server!"
+        # await websocket.send(test_message)
+        # response_message = await websocket.recv()
+        # print(f"Request: {test_message}")
+        # print(f"Response: {response_message}")
 
         test_message_1 = "Tell me news about AAPL?"
         await websocket.send(test_message_1)
@@ -53,6 +53,30 @@ async def test_chat_server():
         response_message = await websocket.recv()
         print(f"Request: {test_message_6}")
         print(f"Response: {response_message}")
+
+        # test_message_7 = "What is CPI?"
+        # await websocket.send(test_message_7)
+        # response_message = await websocket.recv()
+        # print(f"Request: {test_message_7}")
+        # print(f"Response: {response_message}")
+
+        # test_message_8 = "What is GDP?"
+        # await websocket.send(test_message_8)
+        # response_message = await websocket.recv()
+        # print(f"Request: {test_message_8}")
+        # print(f"Response: {response_message}")
+
+        # test_message_9 = "Unemployment rate?"
+        # await websocket.send(test_message_9)
+        # response_message = await websocket.recv()
+        # print(f"Request: {test_message_9}")
+        # print(f"Response: {response_message}")
+
+        # test_message_10 = "Payrolls stats for current year"
+        # await websocket.send(test_message_10)
+        # response_message = await websocket.recv()
+        # print(f"Request: {test_message_10}")
+        # print(f"Response: {response_message}")
 
 
 asyncio.get_event_loop().run_until_complete(test_chat_server())

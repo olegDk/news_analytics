@@ -6,6 +6,10 @@ from analytics.fred_utils import (
     calculate_yield_metrics,
     get_effective_ffr_data,
     get_target_ffr_data,
+    get_cpi,
+    get_gdp,
+    get_payrolls,
+    get_unemployment_rate,
 )
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Pinecone
@@ -229,11 +233,63 @@ def target_ffr_data():
     }
 
 
+def cpi(
+    starting: Optional[str] = None,
+    ending: Optional[str] = None,
+):
+    answer = get_cpi(starting, ending)
+    return {
+        "reply": answer,
+        "source_ids": ["https://fred.stlouisfed.org/"],
+        "type": "cpi",
+    }
+
+
+def gdp(
+    starting: Optional[str] = None,
+    ending: Optional[str] = None,
+):
+    answer = get_gdp(starting, ending)
+    return {
+        "reply": answer,
+        "source_ids": ["https://fred.stlouisfed.org/"],
+        "type": "gdp",
+    }
+
+
+def unemployment_rate(
+    starting: Optional[str] = None,
+    ending: Optional[str] = None,
+):
+    answer = get_unemployment_rate(starting, ending)
+    return {
+        "reply": answer,
+        "source_ids": ["https://fred.stlouisfed.org/"],
+        "type": "unemployment_rate",
+    }
+
+
+def payrolls(
+    starting: Optional[str] = None,
+    ending: Optional[str] = None,
+):
+    answer = get_payrolls(starting, ending)
+    return {
+        "reply": answer,
+        "source_ids": ["https://fred.stlouisfed.org/"],
+        "type": "payrolls",
+    }
+
+
 command_to_processor = {
     "/text": semantic_search,
     "/yield_metrics": yield_metrics,
     "/effective_ffr_rate": effective_ffr_data,
     "/target_ffr_rate": target_ffr_data,
+    "/cpi": cpi,
+    "/gdp": gdp,
+    "/unemployment_rate": unemployment_rate,
+    "/payrolls": payrolls,
 }
 
 
