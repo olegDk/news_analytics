@@ -66,7 +66,7 @@ def get_metric_explanation(symbol: str, metric: str) -> str:
     elif metric == "PERatio":
         return f"PERatio of {symbol} is {metric_value}"
     elif metric == "ProfitMargin":
-        return f"ProfitMargin of {symbol} is {metric_value*100} %"
+        return f"ProfitMargin of {symbol} is {float(metric_value) * 100} %"
     elif metric == "QuarterlyEarningsGrowthYOY":
         return f"QuarterlyEarningsGrowthYOY of {symbol} is {metric_value} %"
     elif metric == "QuarterlyRevenueGrowthYOY":
