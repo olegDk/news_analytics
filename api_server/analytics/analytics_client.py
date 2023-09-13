@@ -11,6 +11,7 @@ from analytics.fred_utils import (
     get_payrolls,
     get_unemployment_rate,
 )
+from analytics.alpha_vantage_utils import get_metric_explanation
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Pinecone
 from models.models import DocumentMetadataFilter
@@ -281,6 +282,15 @@ def payrolls(
     }
 
 
+def corporate(symbol: Optional[str] = None, metric: Optional[str] = None):
+    answer = get_metric_explanation(symbol, metric)
+    return {
+        "reply": answer,
+        "source_ids": ["https://www.alphavantage.co/"],
+        "type": "corporate",
+    }
+
+
 command_to_processor = {
     "/text": semantic_search,
     "/yield_metrics": yield_metrics,
@@ -290,6 +300,7 @@ command_to_processor = {
     "/gdp": gdp,
     "/unemployment_rate": unemployment_rate,
     "/payrolls": payrolls,
+    "/corporate": corporate,
 }
 
 

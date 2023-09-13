@@ -112,6 +112,87 @@ Output: {"command": "/payrolls", "starting": "", "ending": ""}
 Example: Payrolls stat?
 Output: {"command": "/payrolls", "starting": "", "ending": ""}
 
+Example: IBM market cap
+Output: {"command": "/corporate", "symbol": "IBM", "metric": "MarketCapitalization"}
+
+Example: market cap
+Output: {"command": "/corporate", "symbol": "", "metric": "MarketCapitalization"}
+
+Example: What is digital oceans company valuation
+Output: {"command": "/corporate", "symbol": "DOCN", "metric": "MarketCapitalization"}
+
+Example: Apple ebitda
+Output: {"command": "/corporate", "symbol": "AAPL", "metric": "EBITDA"}
+
+Example: EBITDA
+Output: {"command": "/corporate", "symbol": "", "metric": "EBITDA"}
+
+Example: What is cloudflare's earnings before interest taxes depreciation and amortization?
+Output: {"command": "/corporate", "symbol": "NET", "metric": "EBITDA"}
+
+Example: microsoft gross profit
+Output: {"command": "/corporate", "symbol": "MSFT", "metric": "GrossProfitTTM"}
+
+Example: Johnson and Johnson gross revenue
+Output: {"command": "/corporate", "symbol": "JNJ", "metric": "GrossProfitTTM"}
+
+Example: What is caterpillar's gross income
+Output: {"command": "/corporate", "symbol": "CAT", "metric": "GrossProfitTTM"}
+
+Example: Deere revenue
+Output: {"command": "/corporate", "symbol": "DE", "metric": "RevenueTTM"}
+
+Example: Disney net revenue
+Output: {"command": "/corporate", "symbol": "DIS", "metric": "RevenueTTM"}
+
+Example: What is caterpillar's revenue income
+Output: {"command": "/corporate", "symbol": "CAT", "metric": "RevenueTTM"}
+
+Example: Deere earnings per share
+Output: {"command": "/corporate", "symbol": "DE", "metric": "EPS"}
+
+Example: Alibaba eps
+Output: {"command": "/corporate", "symbol": "BABA", "metric": "EPS"}
+
+Example: mastercard's EPS
+Output: {"command": "/corporate", "symbol": "MA", "metric": "EPS"}
+
+Example: Tesla price to earnings
+Output: {"command": "/corporate", "symbol": "TSLA", "metric": "PERatio"}
+
+Example: Alibaba p/e
+Output: {"command": "/corporate", "symbol": "BABA", "metric": "PERatio"}
+
+Example: visa price to earnings ratio
+Output: {"command": "/corporate", "symbol": "V", "metric": "PERatio"}
+
+Example: GOOGL profit margin
+Output: {"command": "/corporate", "symbol": "GOOGL", "metric": "ProfitMargin"}
+
+Example: triple m margin of profit
+Output: {"command": "/corporate", "symbol": "MMM", "metric": "ProfitMargin"}
+
+Example: Verizon profit margin
+Output: {"command": "/corporate", "symbol": "VZ", "metric": "ProfitMargin"}
+
+Example: Nke earnings yoy
+Output: {"command": "/corporate", "symbol": "NKE", "metric": "QuarterlyEarningsGrowthYOY"}
+
+Example: How good are Boeings earnings this quarter
+Output: {"command": "/corporate", "symbol": "BA", "metric": "QuarterlyEarningsGrowthYOY"}
+
+Example: How did Verizon earnings grow? 
+Output: {"command": "/corporate", "symbol": "VZ", "metric": "QuarterlyEarningsGrowthYOY"}
+
+Example: AT&T revenue growth
+Output: {"command": "/corporate", "symbol": "T", "metric": "QuarterlyRevenueGrowthYOY"}
+
+Example: How good is Lockheed Martins revenue this quearter
+Output: {"command": "/corporate", "symbol": "LMT", "metric": "QuarterlyRevenueGrowthYOY"}
+
+Example: How did NVDA revenue grow? 
+Output: {"command": "/corporate", "symbol": "VZ", "metric": "QuarterlyRevenueGrowthYOY"}
+
 If the "command" field in json is "/text" text must be identical to user prompt, as in example. Never change it and never try to answer.
 Your goal is to convert to json only. Dates and datetimes must be in ISO 8601 date format always and without exceptions. 
 When there is question for something in current year - "starting" must be first of January of current year and "ending" must be todays date.
