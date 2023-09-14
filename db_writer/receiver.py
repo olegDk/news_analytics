@@ -34,6 +34,7 @@ async def run(loop):
         # Insert the data into your database
         try:
             news_id = await db_client.insert_news(data)
+
             _ = await pinecone_client.insert_news(str(news_id), data)
         except Exception as e:
             print(e)

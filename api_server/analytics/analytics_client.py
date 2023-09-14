@@ -190,7 +190,9 @@ def semantic_search(
         f"Answer the question as truthfully as possible using the provided context, "
         + f"you are the author of the context, speak from yourself, "
         + f"provide responses as if you were the author of the original context. "
-        + f"If context is not empty - you must provide an answer from that context, you cannot say that you don't know. "
+        + f"If context is not empty - the text you is already an answer for a question, you cannot say that you don't know because answer is already in that context."
+        + f"Don't care about specific data as stock symbol or date because data which you receive is already prefiltered by those fields."
+        + f"The context you receive is always relevent to the question and what you need to do is to tell this answer in a proper, understandable, conversational-like manner."
         + f"Always refer to yourself and never to the author.\n\nContext:\n"
     )
 

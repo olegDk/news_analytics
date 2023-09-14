@@ -33,10 +33,10 @@ async def send_json(websocket):
     # Register.
     connected.add(websocket)
     try:
-        with open("news_data.json", "r") as f:
+        with open("news_data_new.json", "r") as f:
             data = json.load(f)
 
-        data = update_to_todays_date(data=data)
+        # data = update_to_todays_date(data=data)
 
         for item in data:
             for ws in connected:

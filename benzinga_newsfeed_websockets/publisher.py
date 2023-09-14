@@ -19,6 +19,7 @@ logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
 load_dotenv()
 
 BZ_API_KEY = os.environ.get("BZ_API_KEY", default="")
+uri = "wss://api.benzinga.com/api/v1/news/stream?token={key}".format(key=BZ_API_KEY)
 
 
 async def run():
@@ -31,7 +32,8 @@ async def run():
     while not connected:
         try:
             async with websockets.connect(
-                "ws://news_simulator_benzinga:5678",
+                # "ws://news_simulator_benzinga:5678",
+                uri,
                 max_size=10_000_000_000,
             ) as websocket:
                 print("Connected to WebSocket server")
@@ -57,7 +59,9 @@ async def run():
                                     body=BeautifulSoup(
                                         payload["data"]["content"]["body"],
                                         "html.parser",
-                                    ).text,
+                                    ).text
+                                    if payload["data"]["content"]["body"]
+                                    else "",
                                     securities=securities,
                                 )
                             else:
@@ -76,6 +80,7 @@ async def run():
                         logging.info(f"Published message to NATS: {news}")
 
                 except Exception as e:
+                    logging.error(f"An error occurred: {e}")
                     print(f"Exception in WebSocket for loop: {e}")
                     raise e
         except ConnectionRefusedError:
