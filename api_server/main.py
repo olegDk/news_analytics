@@ -25,6 +25,11 @@ from analytics.analytics_client import process_query
 from datetime import date
 
 from models.models import DocumentMetadata, Source
+import logging
+
+
+LOG_FILENAME = "analytics_client.log"
+logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
 
 
 app = FastAPI()
@@ -105,11 +110,27 @@ async def query(request: Query = Body(...)):
 
         # Wrap the reshaped reply data in another dictionary for the QueryResponse model
         reshaped_response = {"reply": reply_data}
+        logging.info(
+            f"Reply data keys: {reshaped_response.keys()}, inside reply data keys: {reshaped_response['reply'].keys()}"
+        )
 
         return reshaped_response
     except Exception as e:
         print("Error:", e)
-        raise HTTPException(status_code=500, detail="Internal Service Error")
+        # raise HTTPException(status_code=500, detail="Internal Service Error")
+        # INFO:root:Reply data keys: dict_keys(['reply']), inside reply data keys: dict_keys(['reply', 'sources', 'type'])
+
+        reply_data = {
+            "reply": {
+                "reply": "Unfortunatelly, I cannot answer this question at the moment, but I will improve",
+                "sources": ["unknown"],
+                "type": "unknown",
+            },
+        }
+        logging.info(
+            f"Reply data keys: {reply_data.keys()}, inside reply data keys: {reply_data['reply'].keys()}"
+        )
+        return reply_data
 
 
 @app.post(

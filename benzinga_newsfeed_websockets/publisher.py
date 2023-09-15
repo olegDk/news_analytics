@@ -51,6 +51,7 @@ async def run():
                                     )
                                     for s in payload["data"]["content"]["securities"]
                                 ]
+                                logging.info(f"Initialized securities: {securities}")
                                 content = Content(
                                     title=BeautifulSoup(
                                         payload["data"]["content"]["title"],
@@ -64,6 +65,7 @@ async def run():
                                     else "",
                                     securities=securities,
                                 )
+                                logging.info(f"Initialized content: {content}")
                             else:
                                 print("No securities in message, skipping.")
                                 continue
