@@ -114,5 +114,11 @@ async def test_chat_server():
         print(f"Request: {test_message_16}")
         print(f"Response: {response_message}")
 
+        test_message_17 = "tell me news about stock: TLRY on 18th september 2023"
+        await websocket.send(test_message_17)
+        response_message = await websocket.recv()
+        print(f"Request: {test_message_17}")
+        print(f"Response: {response_message}")
+
 
 asyncio.get_event_loop().run_until_complete(test_chat_server())

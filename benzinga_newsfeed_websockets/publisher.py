@@ -24,75 +24,79 @@ uri = "wss://api.benzinga.com/api/v1/news/stream?token={key}".format(key=BZ_API_
 
 async def run():
     nc = NATS()
-
-    # Connect to the NATS server
     await nc.connect("nats:4222")
 
     connected = False
     while not connected:
         try:
-            async with websockets.connect(
-                # "ws://news_simulator_benzinga:5678",
-                uri,
-                max_size=10_000_000_000,
-            ) as websocket:
-                print("Connected to WebSocket server")
+            async with websockets.connect(uri, max_size=10_000_000_000) as websocket:
+                logging.info("Connected to WebSocket server")
                 connected = True
 
                 try:
                     async for message in websocket:
-                        payload = json.loads(message)
-                        if "content" in payload["data"]:
-                            if "securities" in payload["data"]["content"]:
-                                securities = [
-                                    Security(
-                                        symbol=s["symbol"],
-                                        exchange=s["exchange"],
-                                    )
-                                    for s in payload["data"]["content"]["securities"]
-                                ]
-                                logging.info(f"Initialized securities: {securities}")
-                                content = Content(
-                                    title=BeautifulSoup(
-                                        payload["data"]["content"]["title"],
-                                        "html.parser",
-                                    ).text,
-                                    body=BeautifulSoup(
-                                        payload["data"]["content"]["body"],
-                                        "html.parser",
-                                    ).text
-                                    if payload["data"]["content"]["body"]
-                                    else "",
-                                    securities=securities,
-                                )
-                                logging.info(f"Initialized content: {content}")
-                            else:
-                                print("No securities in message, skipping.")
-                                continue
-                        else:
-                            print("No content in message, skipping.")
-                            continue
+                        try:
+                            # Log received message
+                            logging.debug(f"Received message: {message}")
+                            payload = json.loads(message)
 
-                        news = News(
-                            content=content,
-                            timestamp=payload["data"]["timestamp"],
-                            sources=["Benzinga"],  # Add this line
-                        )
-                        await nc.publish("news", news.SerializeToString())
-                        logging.info(f"Published message to NATS: {news}")
+                            # Check if 'data' and 'content' exist in payload
+                            data = payload.get("data")
+                            if not data or "content" not in data:
+                                logging.warning("No content in message, skipping.")
+                                continue
+
+                            content_data = data["content"]
+                            securities_data = content_data.get("securities", [])
+
+                            securities = [
+                                Security(symbol=s["symbol"], exchange=s["exchange"])
+                                for s in securities_data
+                            ]
+                            logging.info(f"Initialized securities: {securities}")
+
+                            content = Content(
+                                title=BeautifulSoup(
+                                    content_data.get("title", ""), "html.parser"
+                                ).text,
+                                body=BeautifulSoup(
+                                    content_data.get("body", ""), "html.parser"
+                                ).text,
+                                securities=securities,
+                            )
+                            logging.info(f"Initialized content: {content}")
+
+                            news = News(
+                                content=content,
+                                timestamp=data["timestamp"],
+                                sources=["Benzinga"],
+                            )
+                            await nc.publish("news", news.SerializeToString())
+                            logging.info(f"Published message to NATS: {news}")
+
+                        except json.JSONDecodeError as je:
+                            logging.error(
+                                f"Error decoding JSON: {je}. Message: {message}"
+                            )
+                        except KeyError as ke:
+                            logging.error(
+                                f"Missing expected key: {ke}. Message: {message}"
+                            )
+                        except Exception as e:
+                            logging.error(f"An error occurred: {e}. Message: {message}")
 
                 except Exception as e:
-                    logging.error(f"An error occurred: {e}")
-                    print(f"Exception in WebSocket for loop: {e}")
+                    logging.error(f"Exception in WebSocket for loop: {e}")
                     raise e
+
         except ConnectionRefusedError:
-            print("Connection failed. Retrying in 5 seconds...")
+            logging.warning("Connection failed. Retrying in 5 seconds...")
             await asyncio.sleep(5)
         except Exception as e:
-            print(f"Exception in WebSocket with statement: {e}")
+            logging.error(f"Exception in WebSocket with statement: {e}")
             raise e
 
-    print("Exiting run function.")
+    logging.info("Exiting run function.")
     await nc.close()
 
 
