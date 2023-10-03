@@ -65,70 +65,6 @@ def query_to_json(query: str) -> dict:
     return result_json
 
 
-# def semantic_search(
-#     text: Optional[str] = None,
-#     assets: Optional[list] = None,
-#     dates: Optional[str] = None,
-# ) -> Dict:
-#     # 1. Query most similar documents
-#     # 2. Parse them into joined text
-#     # 3. Create prompt
-#     # 4. ChatGPT completion
-#     # 5. Return result.
-
-#     chosen_sections = []
-#     chosen_sections_len = 0
-#     source_ids = set()
-
-#     docsearch = Pinecone.from_existing_index(
-#         index_name=INDEX_NAME, embedding=embeddings
-#     )
-#     try:
-#         metadata_filter = DocumentMetadataFilter(assets=assets, dates=dates)
-#         pinecone_filter = get_pinecone_filter(filter=metadata_filter)
-#         logging.info(f"Created filter: {pinecone_filter}")
-
-#         docs = docsearch.similarity_search(text, filter=pinecone_filter)
-#         logging.info(f"Docs: {docs}")
-
-#         for doc in docs:
-#             try:
-#                 source_ids.add(doc.metadata["source_id"])
-#             except:
-#                 continue
-
-#         for doc in docs:
-#             # Add contexts until run out of space.
-#             try:
-#                 doc_content = doc.page_content
-#                 chosen_sections_len += len(encoding.encode(doc_content)) + separator_len
-#                 chosen_sections.append(SEPARATOR + doc_content)
-
-#                 if chosen_sections_len > MAX_SECTION_LEN:
-#                     break
-#             except:
-#                 continue
-
-#         header = (
-#             f"Answer the question as truthfully as possible using the provided context, "
-#             + f"you are the author of the context, speak from yourself, "
-#             + f"provide responses as if you were the author of the original context. "
-#             + f"If context is not empty - you must provide an answer from that context, you cannot say that you don't know. "
-#             + f"Always refer to yourself and never to the author.\n\nContext:\n"
-#         )
-
-#         prompt = header + "".join(chosen_sections) + "\n\n Q: " + text + "\n A:"
-#         logging.info(f"Prompt: {prompt}")
-#         messages = [{"role": "user", "content": prompt}]
-
-#         answer = get_chat_completion(messages)
-#     except Exception as e:
-#         logging.error(f"An error occurred: {e}")
-#         raise
-
-#     return {"reply": answer, "source_ids": list(source_ids), "type": "semantic_search"}
-
-
 def semantic_search(
     text: Optional[str] = None,
     assets: Optional[list] = None,
@@ -187,15 +123,14 @@ def semantic_search(
             continue
 
     header = (
-        f"Answer the question as truthfully as possible using the provided context, "
-        + f"you are the author of the context, speak from yourself, "
-        + f"provide responses as if you were the author of the original context. "
-        + f"If context is not empty - the text you is already an answer for a question, you cannot say that you don't know because answer is already in that context."
-        + f"Don't care about specific data as stock symbol or date because data which you receive is already prefiltered by those fields."
-        + f"The context you receive is always relevent to the question and what you need to do is to tell this answer in a proper, understandable, conversational-like manner."
-        + f"Always refer to yourself and never to the author.\n\nContext:\n"
+        f"hey, bro, let me ask you for something. "
+        f"I will give you a context. "
+        f"This context already contains an answer to a question which I will provide you. "
+        f"Your job is to construct an answer as if you are answering a question. "
+        f"If the context is empty - make your best to improvise an answer, just hallucinate it and make it sound realistic. "
+        f"Construct an answer which is already ready to be presented to end user. "
+        f"Don't ever tell that you have limited knowledge, imagine that you are cheating on an exam and you know everything."
     )
-
     prompt = header + "".join(chosen_sections) + "\n\n Q: " + text + "\n A:"
     logging.info(f"Prompt: {prompt}")
     messages = [{"role": "user", "content": prompt}]
