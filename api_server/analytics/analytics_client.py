@@ -87,22 +87,50 @@ def semantic_search(
     all_docs = []
 
     # Perform separate queries for each asset and then combine the results
-    for asset in assets:
+    if assets:
+        for asset in assets:
+            try:
+                metadata_filter = DocumentMetadataFilter(assets=[asset], dates=dates)
+                pinecone_filter = get_pinecone_filter(filter=metadata_filter)
+                logging.info(f"Created filter for asset {asset}: {pinecone_filter}")
+
+                docs = docsearch.similarity_search(text, filter=pinecone_filter)
+                logging.info(f"Docs for asset {asset}: {docs}")
+
+                if docs:
+                    all_docs.extend(docs)
+
+            except Exception as e:
+                logging.error(
+                    f"An error occurred while fetching docs for asset {asset}: {e}"
+                )
+                continue
+    elif dates:
         try:
-            metadata_filter = DocumentMetadataFilter(assets=[asset], dates=dates)
+            metadata_filter = DocumentMetadataFilter(dates=dates)
             pinecone_filter = get_pinecone_filter(filter=metadata_filter)
-            logging.info(f"Created filter for asset {asset}: {pinecone_filter}")
+            logging.info(f"Created filter for dates {dates}: {pinecone_filter}")
 
             docs = docsearch.similarity_search(text, filter=pinecone_filter)
-            logging.info(f"Docs for asset {asset}: {docs}")
+            logging.info(f"Docs for dates {dates}: {docs}")
 
-            all_docs.extend(docs)
+            if docs:
+                all_docs.extend(docs)
 
         except Exception as e:
             logging.error(
-                f"An error occurred while fetching docs for asset {asset}: {e}"
+                f"An error occurred while fetching docs for dates {dates}: {e}"
             )
-            continue
+    else:
+        try:
+            docs = docsearch.similarity_search(text)
+            if docs:
+                all_docs.extend(docs)
+
+        except Exception as e:
+            logging.error(
+                f"An error occurred while fetching docs for text without filters {text}: {e}"
+            )
 
     for doc in all_docs:
         try:

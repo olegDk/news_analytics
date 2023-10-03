@@ -102,19 +102,25 @@ async def test_chat_server():
         # print(f"Request: {test_message_14}")
         # print(f"Response: {response_message}")
 
-        test_message_15 = "tell me news about AAPL stock on 13th september 2023"
-        await websocket.send(test_message_15)
-        response_message = await websocket.recv()
-        print(f"Request: {test_message_15}")
-        print(f"Response: {response_message}")
+        # test_message_15 = "tell me news about AAPL stock on 13th september 2023"
+        # await websocket.send(test_message_15)
+        # response_message = await websocket.recv()
+        # print(f"Request: {test_message_15}")
+        # print(f"Response: {response_message}")
 
-        test_message_16 = "nvda revenue 2022"
-        await websocket.send(test_message_16)
-        response_message = await websocket.recv()
-        print(f"Request: {test_message_16}")
-        print(f"Response: {response_message}")
+        # test_message_16 = "nvda revenue 2022"
+        # await websocket.send(test_message_16)
+        # response_message = await websocket.recv()
+        # print(f"Request: {test_message_16}")
+        # print(f"Response: {response_message}")
 
-        test_message_17 = "tell me news about stock: TLRY on 18th september 2023"
+        # test_message_17 = "tell me news about stock: TLRY on 18th september 2023"
+        # await websocket.send(test_message_17)
+        # response_message = await websocket.recv()
+        # print(f"Request: {test_message_17}")
+        # print(f"Response: {response_message}")
+
+        test_message_17 = "what significant news happened today?"
         await websocket.send(test_message_17)
         response_message = await websocket.recv()
         print(f"Request: {test_message_17}")
