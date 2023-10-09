@@ -112,4 +112,6 @@ def get_ipo_calendar(ipoDate: str = None):
         row_details = ", ".join([f"{headers[i]}: {item}" for i, item in enumerate(row)])
         output.append(f"{idx}. {row_details}")
 
+    if not output:
+        return "There are no upcomming IPOs on specified date."
     return "\n".join(output)
