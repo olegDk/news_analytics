@@ -1,7 +1,7 @@
 import os
 import json
 from typing import Optional, Dict, Any
-from analytics.aiclient.openai_client import get_chat_completion
+from analytics.aiclient.openai_client import get_chat_completion, get_chat_completion_v4
 from analytics.fred_utils import (
     calculate_yield_metrics,
     get_effective_ffr_data,
@@ -170,7 +170,7 @@ def semantic_search(
     logging.info(f"Prompt: {prompt}")
     messages = [{"role": "user", "content": prompt}]
 
-    answer = get_chat_completion(messages)
+    answer = get_chat_completion_v4(messages)
 
     return {"reply": answer, "source_ids": list(source_ids), "type": "semantic_search"}
 
