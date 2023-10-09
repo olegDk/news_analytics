@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
 import os
 import requests
-import json
+import csv
+import requests
 
 load_dotenv()
 
@@ -13,33 +14,43 @@ data = r.json()
 print(data.keys())
 
 
-# def fetch_data(symbol):
-#     API_KEY = "YOUR_ALPHA_VANTAGE_API_KEY"  # Replace with your API Key
-#     BASE_URL = "https://www.alphavantage.co/query"
+def fetch_ipo_data():
+    # Load API key from environment variables
+    load_dotenv()
+    ALPHA_VANTAGE_API_KEY = os.environ.get("ALPHA_VANTAGE_API_KEY")
 
-#     # Fetch the company overview metrics
-#     response = requests.get(
-#         BASE_URL, params={"function": "OVERVIEW", "symbol": symbol, "apikey": API_KEY}
-#     )
+    CSV_URL = f"https://www.alphavantage.co/query?function=IPO_CALENDAR&apikey={ALPHA_VANTAGE_API_KEY}"
 
-#     data = response.json()
+    with requests.Session() as s:
+        download = s.get(CSV_URL)
+        decoded_content = download.content.decode("utf-8")
+        cr = csv.reader(decoded_content.splitlines(), delimiter=",")
+        my_list = list(cr)
 
-#     # Extracting specific metrics from the data
-#     revenue_growth = data.get("QuarterlyRevenueGrowthYOY", "Data not available")
-#     profit_margin = data.get("ProfitMargin", "Data not available")
-#     debt_to_equity = data.get("DebtToEquityRatio", "Data not available")
-#     free_cash_flow = data.get("FreeCashFlow", "Data not available")
-#     pe_ratio = data.get("PERatio", "Data not available")
-
-#     print(f"Revenue Growth: {revenue_growth}")
-#     print(f"Profit Margin: {profit_margin}")
-#     print(f"Debt-to-Equity Ratio: {debt_to_equity}")
-#     print(f"Free Cash Flow: {free_cash_flow}")
-#     print(f"Price-to-Earnings Ratio (P/E): {pe_ratio}")
+    return my_list
 
 
-# if __name__ == "__main__":
-#     ticker_symbol = input(
-#         "Enter the ticker symbol of the company (e.g. AAPL for Apple): "
-#     )
-#     fetch_data(ticker_symbol)
+def get_ipo_calendar(ipoDate: str = None):
+    my_list = fetch_ipo_data()
+
+    headers = my_list[0]
+    if ipoDate:
+        data_rows = [
+            row for row in my_list[1:] if row[headers.index("ipoDate")] == ipoDate
+        ]
+    else:
+        data_rows = my_list[1:]
+
+    output = []
+    for idx, row in enumerate(data_rows, start=1):
+        row_details = ", ".join([f"{headers[i]}: {item}" for i, item in enumerate(row)])
+        output.append(f"{idx}. {row_details}")
+
+    return "\n".join(output)
+
+
+# Test the function
+print(get_ipo_calendar())
+
+ipoDate = "2023-10-09"
+print(get_ipo_calendar(ipoDate))

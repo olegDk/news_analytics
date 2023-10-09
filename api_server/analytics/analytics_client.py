@@ -11,7 +11,7 @@ from analytics.fred_utils import (
     get_payrolls,
     get_unemployment_rate,
 )
-from analytics.alpha_vantage_utils import get_metric_explanation
+from analytics.alpha_vantage_utils import get_metric_explanation, get_ipo_calendar
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Pinecone
 from models.models import DocumentMetadataFilter
@@ -142,6 +142,7 @@ def semantic_search(
         # Add contexts until run out of space.
         try:
             doc_content = doc.page_content
+            print(doc_content)
             chosen_sections_len += len(encoding.encode(doc_content)) + separator_len
             chosen_sections.append(SEPARATOR + doc_content)
 
@@ -150,16 +151,22 @@ def semantic_search(
         except:
             continue
 
+    print(all_docs)
+    print(chosen_sections)
+
     header = (
-        f"hey, bro, let me ask you for something. "
+        f"Hey, bro, let me ask you for something. "
         f"I will give you a context. "
         f"This context already contains an answer to a question which I will provide you. "
-        f"Your job is to construct an answer as if you are answering a question. "
-        f"If the context is empty - make your best to improvise an answer, just hallucinate it and make it sound realistic. "
-        f"Construct an answer which is already ready to be presented to end user. "
-        f"Don't ever tell that you have limited knowledge, imagine that you are cheating on an exam and you know everything."
+        f"Your job is to construct an answer as if you are answering a question given following conditions:\n"
+        f"1. If the context is empty - try to answer yourself or make your best to improvise an answer, just hallucinate it and make it sound realistic.\n"
+        f"2. On the opposite side - if the context is not empty: create summary of this context - this will be the answer to present user.\n"
+        f"Construct an answer which is already ready to be presented to end user. Don't refer to yourself, simply answer as if you are talking with your best friend."
+        f"Don't ever tell that you have limited knowledge, or context is not relevant. Imagine that you are cheating on an exam and you know everything.\n\n"
+        f"Again, simple rule: if context is empy - improvise, if not empty - output summary of context. This will give you highest grade on an exam.\n\n"
+        f"Context: \n"
     )
-    prompt = header + "".join(chosen_sections) + "\n\n Q: " + text + "\n A:"
+    prompt = header + "".join(chosen_sections) + "\n Question: " + text + "\n Answer:"
     logging.info(f"Prompt: {prompt}")
     messages = [{"role": "user", "content": prompt}]
 
@@ -256,6 +263,15 @@ def corporate(symbol: Optional[str] = None, metric: Optional[str] = None):
     }
 
 
+def ipo_calendar(ipoDate: Optional[str] = None):
+    answer = get_ipo_calendar(ipoDate)
+    return {
+        "reply": answer,
+        "source_ids": ["https://www.alphavantage.co/"],
+        "type": "ipo_calendar",
+    }
+
+
 command_to_processor = {
     "/text": semantic_search,
     "/yield_metrics": yield_metrics,
@@ -266,6 +282,7 @@ command_to_processor = {
     "/unemployment_rate": unemployment_rate,
     "/payrolls": payrolls,
     "/corporate": corporate,
+    "/ipo_calendar": ipo_calendar,
 }
 
 

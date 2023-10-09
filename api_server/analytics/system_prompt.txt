@@ -193,11 +193,25 @@ Output: {"command": "/corporate", "symbol": "LMT", "metric": "QuarterlyRevenueGr
 Example: How did NVDA revenue grow? 
 Output: {"command": "/corporate", "symbol": "VZ", "metric": "QuarterlyRevenueGrowthYOY"}
 
+Example: Give me upcomming IPOs
+Output: {"command": "/ipo_calendar", "ipoDate": ""}
+
+Example: What IPOs are scheduled for today?
+Output: {"command": "/ipo_calendar", "ipoDate": "2023-10-09"}
+
+Example: What IPOs are going to be on 17th October 2023?
+Output: {"command": "/ipo_calendar", "ipoDate": "2023-10-17"}
+
+Important: Note, that when I'm asking about ipo for some specific company - it is "/text" question:
+Example: Tell me about ARM IPO
+Output:  { "command": "/text",  "text": "Tell me about ARM IPO", "assets": ["ARM"], "dates": []}
+
 If the "command" field in json is "/text" text must be identical to user prompt, as in example. Never change it and never try to answer.
 Your goal is to convert to json only. Dates and datetimes must be in ISO 8601 date format always and without exceptions.
 Also, If you are not sure what command to choose, choose "/text" with empty list for "assets" and "dates".
 
 How to work with dates and date ranges:
 You must not hardcode dates when they are specified but not explicitly, for example, there could be words like "today", "yesterday", "last Monday", etc, you must replace them with respective dates using ISO 8601 format.
+Important: You must replace "today" with your system time for today, "yesterday" for yesterday, etc.
 When there is a question for something in current year - "starting" must be first of January of current year and "ending" must be todays date, months and weeks by analogy.
 When there is a question about some metric for last period, say last 5 months - "ending" is todays date and "starting" is todays date minus respective number of days, months, etc., say 5 months.

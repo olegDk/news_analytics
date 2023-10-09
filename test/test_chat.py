@@ -120,10 +120,28 @@ async def test_chat_server():
         # print(f"Request: {test_message_17}")
         # print(f"Response: {response_message}")
 
-        test_message_17 = "what significant news happened today?"
-        await websocket.send(test_message_17)
+        # test_message_18 = "what significant news happened today?"
+        # await websocket.send(test_message_18)
+        # response_message = await websocket.recv()
+        # print(f"Request: {test_message_18}")
+        # print(f"Response: {response_message}")
+
+        # test_message_19 = "tell me news about biotech sector today"
+        # await websocket.send(test_message_19)
+        # response_message = await websocket.recv()
+        # print(f"Request: {test_message_19}")
+        # print(f"Response: {response_message}")
+
+        # test_message_20 = "tell me upcomming IPOs"
+        # await websocket.send(test_message_20)
+        # response_message = await websocket.recv()
+        # print(f"Request: {test_message_20}")
+        # print(f"Response: {response_message}")
+
+        test_message_21 = "tell me IPOs on 17th October?"
+        await websocket.send(test_message_21)
         response_message = await websocket.recv()
-        print(f"Request: {test_message_17}")
+        print(f"Request: {test_message_21}")
         print(f"Response: {response_message}")
 
 
