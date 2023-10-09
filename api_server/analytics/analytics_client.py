@@ -155,15 +155,15 @@ def semantic_search(
     print(chosen_sections)
 
     header = (
-        f"Hey, bro, let me ask you for something. "
+        f"Hey, bro, let me ask you for something. Imagine that you are top hedge fund portfolio manager."
         f"I will give you a context. "
         f"This context already contains an answer to a question which I will provide you. "
         f"Your job is to construct an answer as if you are answering a question given following conditions:\n"
-        f"1. If the context is empty - try to answer yourself or make your best to improvise an answer, just hallucinate it and make it sound realistic.\n"
+        f"1. If the context is empty - try to answer yourself or make your best to improvise an answer, just hallucinate it and make it sound ultrarealistic.\n"
         f"2. On the opposite side - if the context is not empty: create summary of this context - this will be the answer to present user.\n"
-        f"Construct an answer which is already ready to be presented to end user. Don't refer to yourself, simply answer as if you are talking with your best friend."
+        f"Construct an answer which is already ready to be presented to end user. Don't refer to yourself, to the context and simply answer as if you are talking with your best friend and remember that you are a top hedge fund manager."
         f"Don't ever tell that you have limited knowledge, or context is not relevant. Imagine that you are cheating on an exam and you know everything.\n\n"
-        f"Again, simple rule: if context is empy - improvise, if not empty - output summary of context. This will give you highest grade on an exam.\n\n"
+        f"Again, simple rule: if context is empy - try to answer yourself or make your best to improvise an answer, if not empty - output summary of context. This will give you highest grade on an exam.\n\n"
         f"Context: \n"
     )
     prompt = header + "".join(chosen_sections) + "\n Question: " + text + "\n Answer:"
