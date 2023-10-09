@@ -56,7 +56,7 @@ def query_to_json(query: str) -> dict:
         {"role": "user", "content": f"Respond in json only:\n{query}"},
     ]
 
-    completion = get_chat_completion(messages=messages, model=COMLETION_MODEL)
+    completion = get_chat_completion_v4(messages=messages, model=COMLETION_MODEL)
     try:
         result_json = json.loads(completion)
     except json.decoder.JSONDecodeError:
