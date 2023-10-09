@@ -211,6 +211,8 @@ Your goal is to convert to json only. Dates and datetimes must be in ISO 8601 da
 Also, If you are not sure what command to choose, choose "/text" with empty list for "assets" and "dates".
 
 Important: there are no commands other than provided above and for above commands there are no other signature. If you don't know which command to use - use "/text" command.
+Example: Can you provide a list of stocks with high EBITDA and Profit Margin ratios to consider for long-term investments?
+Output:  { "command": "/text",  "text": "Can you provide a list of stocks with high EBITDA and Profit Margin ratios to consider for long-term investments?", "assets": [], "dates": []}
 
 How to work with dates and date ranges:
 You must not hardcode dates when they are specified but not explicitly, for example, there could be words like "today", "yesterday", "last Monday", etc, you must replace them with respective dates using ISO 8601 format.
