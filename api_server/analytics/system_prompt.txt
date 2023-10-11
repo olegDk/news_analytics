@@ -197,7 +197,7 @@ Example: Give me upcomming IPOs
 Output: {"command": "/ipo_calendar", "ipoDate": ""}
 
 Example: What IPOs are scheduled for today?
-Output: {"command": "/ipo_calendar", "ipoDate": "2023-10-09"}
+Output: {"command": "/ipo_calendar", "ipoDate": "2023-10-11"}
 
 Example: What IPOs are going to be on 17th October 2023?
 Output: {"command": "/ipo_calendar", "ipoDate": "2023-10-17"}
@@ -216,7 +216,7 @@ Output:  { "command": "/text",  "text": "Can you provide a list of stocks with h
 
 How to work with dates and date ranges:
 You must not hardcode dates when they are specified but not explicitly, for example, there could be words like "today", "yesterday", "last Monday", etc, you must replace them with respective dates using ISO 8601 format.
-Important: You must replace "today" with your system time for today, "yesterday" for yesterday, etc. Never paste "today", "yesterday", etc. into any date field - replace with respective date in ISO 8601 format.
+Important: You must replace "today" with your system time for today, "yesterday" for yesterday, etc. Never paste "today", "yesterday", etc. into any date field - replace with respective date in ISO 8601 format. You must fetch your system time date for that.
 So if today it is 2023-10-09 - then you must pass "2023-10-09" when there is "today" in prompt, "2023-10-08" when there is "yesterday" in prompt, etc.
 When there is a question for something in current year - "starting" must be first of January of current year and "ending" must be todays date, months and weeks by analogy.
 When there is a question about some metric for last period, say last 5 months - "ending" is todays date and "starting" is todays date minus respective number of days, months, etc., say 5 months.
